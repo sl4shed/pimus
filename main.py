@@ -18,7 +18,35 @@ pygame.display.flip()
 ## Main Loop ##
 running = True
 scroll = 0
-menu = hmenu.hmenu("the quick brown fox jumps over the lazy dog.", screen, controller)
+menu = hmenu.hmenu("Pimus 1.0", screen, controller)
+
+
+def playlists():
+    print("pula")
+
+
+def albums():
+    pass
+
+
+def artists():
+    pass
+
+
+def search():
+    pass
+
+
+def options():
+    pass
+
+
+menu.add_entry("Playlists", playlists)  # hmenu
+menu.add_entry("Albums", albums)  # vmenu
+menu.add_entry("Artists", artists)  # vmenu
+menu.add_entry("Search", search)  # not yet implemented
+menu.add_entry("Options", options)  # hmenu
+
 while running:
     # controller update code
     events = pygame.event.get()

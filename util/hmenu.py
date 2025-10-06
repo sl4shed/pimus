@@ -14,47 +14,27 @@ class hmenu:
         self.last_title_scroll = 0
         self.scroll_interval = 100
 
-        self.screen.create_character(
-            0,
-            [
-                [0, 0, 0, 0, 1],
-                [0, 0, 0, 1, 0],
-                [0, 0, 1, 0, 0],
-                [0, 1, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 1],
-                [0, 0, 0, 0, 0],
-            ],
-        )
-
-        self.screen.create_character(
-            1,
-            [
-                [1, 0, 0, 0, 0],
-                [0, 1, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [0, 0, 0, 1, 0],
-                [0, 0, 1, 0, 0],
-                [0, 1, 0, 0, 0],
-                [1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-            ],
-        )
-
     def add_entry(self, text, callback):
         self.entries.append({"text": text, "callback": callback})
 
     def update(self):
         # title update
-        if (
-            len(self.title) > self.screen.columns
-            and utils.millis() - self.last_title_scroll > self.scroll_interval
-        ):
+        if utils.millis() - self.last_title_scroll > self.scroll_interval:
             self.title_scroll += 1
             self.last_title_scroll = utils.millis()
 
         # selection updating
+        if self.controller.just_pressed("select"):
+            self.entries[self.entry_index]["callback"]()
+
+        if (
+            self.controller.just_pressed("right")
+            and self.entry_index < len(self.entries) - 1
+        ):
+            self.entry_index += 1
+
+        if self.controller.just_pressed("left") and self.entry_index > 0:
+            self.entry_index -= 1
 
         self.draw()
 
@@ -66,8 +46,16 @@ class hmenu:
 
         if self.entry_index != 0:
             self.screen.set_cursor(0, 1)
-            self.screen.write_string("\x00")
+            self.screen.write_string("<")
 
-        if self.entry_index != len(self.entries):
+        if self.entry_index != len(self.entries) - 1:
             self.screen.set_cursor(self.screen.columns - 1, 1)
-            self.screen.write_string("\x01")
+            self.screen.write_string(">")
+
+        current_entry = self.entries[self.entry_index]
+        if len(current_entry["text"]) > self.screen.columns - 2:
+            utils.draw_boundary_scrolling_text(
+                self.screen, current_entry["text"], 1, 1, 15, self.title_scroll
+            )
+        else:
+            utils.draw_centered_text(self.screen, current_entry["text"], 1)
