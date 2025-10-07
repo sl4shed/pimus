@@ -3,6 +3,7 @@ from lib import control
 from util import charmap
 from util import utils
 from util import hmenu
+from util import vmenu
 import time
 import pygame
 
@@ -18,7 +19,6 @@ pygame.display.flip()
 ## Main Loop ##
 running = True
 scroll = 0
-menu = hmenu.hmenu("Pimus 1.0", screen, controller)
 
 
 def playlists():
@@ -41,11 +41,18 @@ def options():
     pass
 
 
-menu.add_entry("Playlists", playlists)  # hmenu
-menu.add_entry("Albums", albums)  # vmenu
-menu.add_entry("Artists", artists)  # vmenu
-menu.add_entry("Search", search)  # not yet implemented
-menu.add_entry("Options", options)  # hmenu
+# menu = hmenu.hmenu("Pimus 1.0", screen, controller)
+# menu.add_entry("Playlists", playlists)  # hmenu
+# menu.add_entry("Albums", albums)  # vmenu
+# menu.add_entry("Artists", artists)  # vmenu
+# menu.add_entry("Search", search)  # not yet implemented
+# menu.add_entry("Options", options)  # hmenu
+
+menu2 = vmenu.vmenu("Playlists", screen, controller)
+menu2.add_entry("The j", playlists)
+menu2.add_entry("Test Entry With Long Title", playlists)
+menu2.add_entry("Bla bla", playlists)
+menu2.add_entry("Another Long Entry", playlists)
 
 while running:
     # controller update code
@@ -56,7 +63,8 @@ while running:
     controller.update(events)
 
     screen.clear()
-    menu.update()
+    # menu.update()
+    menu2.update()
 
     pygame.display.update()
     screen.draw()
