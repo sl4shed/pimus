@@ -19,10 +19,8 @@ pygame.display.flip()
 ## Main Loop ##
 running = True
 scroll = 0
-
-
-def playlists():
-    print("pula")
+global active_menu
+global last_menu
 
 
 def albums():
@@ -41,19 +39,35 @@ def options():
     pass
 
 
-# menu = hmenu.hmenu("Pimus 1.0", screen, controller)
-# menu.add_entry("Playlists", playlists)  # hmenu
-# menu.add_entry("Albums", albums)  # vmenu
-# menu.add_entry("Artists", artists)  # vmenu
-# menu.add_entry("Search", search)  # not yet implemented
-# menu.add_entry("Options", options)  # hmenu
+def playlists():
+    playlists_menu = vmenu.vmenu("Playlists:", screen, controller)
 
-menu2 = vmenu.vmenu("Playlists:", screen, controller)
-menu2.add_entry("The j", playlists)
-menu2.add_entry("Test Entry With Long Title", playlists)
-menu2.add_entry("Bla bla", playlists)
-menu2.add_entry("Another Long Entry", playlists)
-menu2.add_entry("New Playlist", playlists, True)
+    global active_menu
+    global last_menu
+    last_menu = main_menu
+    active_menu = playlists_menu
+
+
+def go_back():
+    global active_menu
+    global last_menu
+    active_menu = last_menu
+
+
+def select_playlist():
+    print("tbm")
+
+
+main_menu = hmenu.hmenu("Pimus 1.0", screen, controller)
+main_menu.add_entry("Playlists", playlists)
+main_menu.add_entry("Albums", albums)
+main_menu.add_entry("Artists", artists)
+main_menu.add_entry("Search", search)
+main_menu.add_entry("Options", options)
+
+# set the currently active menu
+active_menu = main_menu
+last_menu = main_menu
 
 while running:
     # controller update code
@@ -63,9 +77,11 @@ while running:
             running = False
     controller.update(events)
 
+    if controller.is_repeating("left"):
+        go_back()
+
     screen.clear()
-    # menu.update()
-    menu2.update()
+    active_menu.update()
 
     pygame.display.update()
     screen.draw()

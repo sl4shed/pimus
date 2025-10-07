@@ -15,7 +15,7 @@ class Controller:
 
         self.previous_state = {key: False for key in self.current_state}
 
-        self.press_time = {key: 0 for key in self.current_state}
+        self.press_time = {key: float(0) for key in self.current_state}
         self.repeat_delay = 0.5
         self.repeat_rate = 0.15
 
@@ -32,7 +32,7 @@ class Controller:
             pygame.K_SPACE: "select",
         }
 
-    def update(self, events=None):
+    def update(self, events):
         current_time = time.time()
 
         self.previous_state = self.current_state.copy()
