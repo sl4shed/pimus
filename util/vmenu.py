@@ -9,8 +9,7 @@ class vmenu:
         self.entries = []
 
         self.entry_index = 0
-        self.cursor_y = 0
-        self.active_y = 0
+        self.cursor = 1
         self.title_scroll = 0  # unused if the text isnt longer than the screen
         self.last_title_scroll = 0
         self.scroll_interval = 100
@@ -43,8 +42,17 @@ class vmenu:
             ],
         )
 
-    def add_entry(self, text, callback):
-        self.entries.append({"text": text, "callback": callback})
+        self.add_entry(self.title, None, True, False)
+
+    def add_entry(self, text, callback, centered=False, selectable=True):
+        self.entries.append(
+            {
+                "text": text,
+                "callback": callback,
+                "centered": centered,
+                "selectable": selectable,
+            }
+        )
 
     def update(self):
         # title update
@@ -52,25 +60,30 @@ class vmenu:
             self.title_scroll += 1
             self.last_title_scroll = utils.millis()
 
-        # controller
+        if self.entries[self.entry_index]["selectable"] == False:
+            self.cursor = 1
+
+        # controller stuff
         if self.controller.just_pressed("down"):
-            if self.entry_index + 2 > len(self.entries):
-                return
-            if self.cursor_y == 0:
-                self.cursor_y = 1
-            elif self.cursor_y == 1:
-                self.active_y = 1
+            # if cursor is on top row and theres another entry below just move it down
+            if self.cursor == 0 and self.entry_index + 1 < len(self.entries):
+                self.cursor = 1
+            # if cursor already on bottom row scroll down (if possible)
+            elif self.cursor == 1 and self.entry_index + 1 < len(self.entries) - 1:
                 self.entry_index += 1
+
         elif self.controller.just_pressed("up"):
-            if self.entry_index - 2 < 0:
-                return
-            if self.cursor_y == 0:
-                self.active_y = 1
+            # if cursor is on bottom row, move it up
+            if self.cursor == 1:
+                self.cursor = 0
+            # if cursor is already at top and we can scroll up
+            elif self.cursor == 0 and self.entry_index > 0:
                 self.entry_index -= 1
-            elif self.cursor_y == 1:
-                self.cursor_y = 0
+
         elif self.controller.just_pressed("select"):
-            self.entries[self.entry_index]["callback"]()
+            idx = self.entry_index + self.cursor
+            if 0 <= idx < len(self.entries):
+                self.entries[idx]["callback"]()
 
         self.draw()
 
@@ -80,35 +93,34 @@ class vmenu:
                 self.screen, entry["text"], row, 1, 15, self.title_scroll
             )
         else:
-            self.screen.set_cursor(1, row)
-            self.screen.write_string(entry["text"])
+            if entry["centered"]:
+                utils.draw_centered_text(self.screen, entry["text"], row)
+            else:
+                self.screen.set_cursor(1, row)
+                self.screen.write_string(entry["text"])
 
     def draw(self):
-        if self.active_y == 0:
-            self.screen.set_cursor(0, 0)
-            entry = self.entries[self.entry_index]
-            self.draw_entry(entry, 0)
+        top_index = self.entry_index
+        bottom_index = top_index + 1
 
-            if len(self.entries) > 0:
-                self.screen.set_cursor(0, 1)
-                entry = self.entries[self.entry_index + 1]
-                self.draw_entry(entry, 1)
-        elif self.active_y == 1:
-            self.screen.set_cursor(0, 1)
-            entry = self.entries[self.entry_index]
-            self.draw_entry(entry, 1)
+        # top entry
+        if top_index < len(self.entries):
+            self.screen.set_cursor(1, 0)
+            self.draw_entry(self.entries[top_index], 0)
 
-            if self.entry_index > 0:
-                self.screen.set_cursor(0, 0)
-                entry = self.entries[self.entry_index - 1]
-                self.draw_entry(entry, 0)
+        # bottom entry
+        if bottom_index < len(self.entries):
+            self.screen.set_cursor(1, 1)
+            self.draw_entry(self.entries[bottom_index], 1)
 
-        self.screen.set_cursor(0, self.cursor_y)
+        # cursor
+        self.screen.set_cursor(0, self.cursor)
         self.screen.write_string(">")
 
-        if self.entry_index + 1 < len(self.entries):
-            self.screen.set_cursor(self.screen.columns - 1, 1)
-            self.screen.write_string("\x00")
-        if self.entry_index - 1 > 0:
+        # up/down indicators
+        if top_index > 0:
             self.screen.set_cursor(self.screen.columns - 1, 0)
             self.screen.write_string("\x01")
+        if bottom_index < len(self.entries) - 1:
+            self.screen.set_cursor(self.screen.columns - 1, 1)
+            self.screen.write_string("\x00")

@@ -48,11 +48,12 @@ def options():
 # menu.add_entry("Search", search)  # not yet implemented
 # menu.add_entry("Options", options)  # hmenu
 
-menu2 = vmenu.vmenu("Playlists", screen, controller)
+menu2 = vmenu.vmenu("Playlists:", screen, controller)
 menu2.add_entry("The j", playlists)
 menu2.add_entry("Test Entry With Long Title", playlists)
 menu2.add_entry("Bla bla", playlists)
 menu2.add_entry("Another Long Entry", playlists)
+menu2.add_entry("New Playlist", playlists, True)
 
 while running:
     # controller update code
