@@ -17,7 +17,12 @@ surface = pygame.display.set_mode((720, 130))
 configuration = config.Config("./config.json")
 controller = control.Controller()
 screen = lcd.Screen(2, 16, charmap.charmap, 0, 0, (102, 168, 0), surface)
-navidrome = server.Server()
+navidrome = server.Server(
+    configuration.get("server.address"),
+    configuration.get("server.username"),
+    configuration.get("server.password"),
+    "PiMus 1.0",
+)
 
 pygame.display.flip()
 

@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import json
 
 
@@ -14,10 +13,13 @@ class Config:
         if "." in key:
             arr = key.split(".")
             last_element = self.data
-            element = self.data
-            for k in arr:
+            element = self.data[arr[0]]
+            for idk, k in enumerate(arr):
+                if idk == 0:
+                    continue
                 last_element = element
                 element = last_element[k]
+            return element
         else:
             return self.data[key]
 
