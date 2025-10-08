@@ -2,16 +2,18 @@ from util import utils
 
 
 class hmenu:
-    def __init__(self, title, screen, controller):
+    def __init__(self, title, screen, controller, config):
         self.title = title
         self.entries = []
+
         self.screen = screen
         self.controller = controller
+        self.config = config
 
         self.entry_index = 0
         self.title_scroll = 0  # unused if the text isnt longer than the screen
         self.last_title_scroll = 0
-        self.scroll_interval = 100
+        self.scroll_interval = self.config.get("scroll_speed")
 
     def add_entry(self, text, callback):
         self.entries.append({"text": text, "callback": callback})

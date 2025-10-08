@@ -1,9 +1,11 @@
 from lib import lcd
 from lib import control
+from lib import config
+from lib import server
 from util import charmap
 from util import utils
-from util import hmenu
-from util import vmenu
+from ui import hmenu
+from ui import vmenu
 import time
 import pygame
 
@@ -12,8 +14,11 @@ pygame.init()
 pygame.display.set_caption("Pimus Emulator")
 surface = pygame.display.set_mode((720, 130))
 
+configuration = config.Config("./config.json")
 controller = control.Controller()
 screen = lcd.Screen(2, 16, charmap.charmap, 0, 0, (102, 168, 0), surface)
+navidrome = server.Server()
+
 pygame.display.flip()
 
 ## Main Loop ##
@@ -40,7 +45,7 @@ def options():
 
 
 def playlists():
-    playlists_menu = vmenu.vmenu("Playlists:", screen, controller)
+    playlists_menu = vmenu.vmenu("Playlists:", screen, controller, configuration)
 
     global active_menu
     global last_menu
@@ -58,7 +63,7 @@ def select_playlist():
     print("tbm")
 
 
-main_menu = hmenu.hmenu("Pimus 1.0", screen, controller)
+main_menu = hmenu.hmenu("Pimus 1.0", screen, controller, configuration)
 main_menu.add_entry("Playlists", playlists)
 main_menu.add_entry("Albums", albums)
 main_menu.add_entry("Artists", artists)
