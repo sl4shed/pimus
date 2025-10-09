@@ -5,12 +5,13 @@ import xmltodict
 
 
 class Server:
-    def __init__(self, address, username, password, app_name):
+    def __init__(self, address, username, password, app_name, logger):
         self.address = address
         self.username = username
         self.password = password
         self.app_name = app_name
         self.api_version = "1.16.1"
+        self.logger = logger
 
         self.salt = str(uuid.uuid4())[:6]
         self.token = hashlib.md5(f"{self.password}{self.salt}".encode()).hexdigest()
@@ -27,6 +28,8 @@ class Server:
             return True
         elif response["subsonic-response"]["@status"] == "failed":
             # todo make logger work
+            print(response["subsonic-response"]["error"]["@code"])
+            print(response["subsonic-response"]["error"]["@message"])
             return False
         else:
             # todo make logger work. ts unexpected response from server
