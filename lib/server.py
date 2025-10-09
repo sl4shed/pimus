@@ -3,9 +3,11 @@ import hashlib
 import uuid
 import xmltodict
 
+from lib.logger import Logger
+
 
 class Server:
-    def __init__(self, address, username, password, app_name, logger):
+    def __init__(self, address, username, password, app_name, logger: Logger):
         self.address = address
         self.username = username
         self.password = password
@@ -13,24 +15,32 @@ class Server:
         self.api_version = "1.16.1"
         self.logger = logger
 
-        self.salt = str(uuid.uuid4())[:6]
-        self.token = hashlib.md5(f"{self.password}{self.salt}".encode()).hexdigest()
+    def get_queries(self):
+        salt = str(uuid.uuid4())[:6]
+        token = hashlib.md5(f"{self.password}{salt}".encode()).hexdigest()
 
-        print(self.ping())
+        return f"?u={self.username}&t={token}&s={salt}&c={self.app_name}&v={self.api_version}"
+
+    def endpoint(self, endpoint, queries=[]):
+        q = ""
+        for query in queries:
+            q += f"?{query.key}={query.value}"
+        url = f"{self.address}/{endpoint}{self.get_queries()}{q}"
+        request = requests.get(url)
+        return xmltodict.parse(request.content)
 
     def ping(self):
-        # todo make a function that returns all the obligatory search queries
-        url = f"{self.address}/rest/ping.view?u={self.username}&t={self.token}&s={self.salt}&c={self.app_name}&v={self.api_version}"
-        request = requests.get(url)
-        response = xmltodict.parse(request.content)
+        response = self.endpoint("rest/ping.view")
 
         if response["subsonic-response"]["@status"] == "ok":
             return True
         elif response["subsonic-response"]["@status"] == "failed":
-            # todo make logger work
-            print(response["subsonic-response"]["error"]["@code"])
-            print(response["subsonic-response"]["error"]["@message"])
+            self.logger.error(f"Server ping error:")
+            self.logger.error(
+                f"{response['subsonic-response']['error']['@code']}: {response['subsonic-response']['error']['@message']}"
+            )
             return False
         else:
-            # todo make logger work. ts unexpected response from server
-            return False
+            self.logger.error("Unexpected response from server ping.")
+            self.logger.error(response)
+            return
