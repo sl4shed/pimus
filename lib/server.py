@@ -24,23 +24,33 @@ class Server:
     def endpoint(self, endpoint, queries=[]):
         q = ""
         for query in queries:
-            q += f"?{query.key}={query.value}"
+            q += f"?{query['key']}={query['value']}"
         url = f"{self.address}/{endpoint}{self.get_queries()}{q}"
         request = requests.get(url)
         return xmltodict.parse(request.content)
 
-    def ping(self):
-        response = self.endpoint("rest/ping.view")
-
+    def handle_response(self, response):
         if response["subsonic-response"]["@status"] == "ok":
-            return True
+            return {"valid": True, "response": response}
         elif response["subsonic-response"]["@status"] == "failed":
-            self.logger.error(f"Server ping error:")
+            self.logger.error(f"Server error:")
             self.logger.error(
                 f"{response['subsonic-response']['error']['@code']}: {response['subsonic-response']['error']['@message']}"
             )
-            return False
+            return {"valid": False, "response": response}
         else:
-            self.logger.error("Unexpected response from server ping.")
+            self.logger.error("Unexpected response from server:")
             self.logger.error(response)
-            return
+            return {"valid": False, "response": response}
+
+    def ping(self):
+        response = self.endpoint("rest/ping.view")
+        return self.handle_response(response)["valid"]
+
+    def get_playlists(self):
+        response = self.endpoint("rest/getPlaylists")
+        return self.handle_response(response)["response"]
+
+    def get_playlist(self, id):
+        response = self.endpoint("rest/getPlaylist", [{"id": id}])
+        return self.handle_response(response)["response"]

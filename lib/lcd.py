@@ -103,7 +103,12 @@ class Screen:
                     ord(char)
                 ]
             else:
-                self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(char)
+                if not self.charmap.get(char):
+                    self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(" ")
+                else:
+                    self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(
+                        char
+                    )
 
         self.draw()
 

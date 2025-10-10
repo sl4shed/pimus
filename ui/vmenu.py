@@ -43,17 +43,10 @@ class vmenu:
             ],
         )
 
-        self.add_entry(self.title, None, True, False)
+        self.add_entry(self.title, None, {"centered": True, "selectable": False})
 
-    def add_entry(self, text, callback, centered=False, selectable=True):
-        self.entries.append(
-            {
-                "text": text,
-                "callback": callback,
-                "centered": centered,
-                "selectable": selectable,
-            }
-        )
+    def add_entry(self, text, callback, options):
+        self.entries.append({"text": text, "callback": callback, "options": options})
 
     def update(self):
         # title update
@@ -61,7 +54,7 @@ class vmenu:
             self.title_scroll += 1
             self.last_title_scroll = utils.millis()
 
-        if self.entries[self.entry_index]["selectable"] == False:
+        if self.entries[self.entry_index]["options"].get("selectable", None) == False:
             self.cursor = 1
 
         # controller stuff
@@ -84,7 +77,12 @@ class vmenu:
         elif self.controller.just_pressed("select"):
             idx = self.entry_index + self.cursor
             if 0 <= idx < len(self.entries):
-                self.entries[idx]["callback"]()
+                if self.entries[idx]["options"].get("argument", None):
+                    self.entries[idx]["callback"](
+                        self.entries[idx]["options"]["argument"]
+                    )
+                else:
+                    self.entries[idx]["callback"]()
 
         self.draw()
 
@@ -94,7 +92,7 @@ class vmenu:
                 self.screen, entry["text"], row, 1, 15, self.title_scroll
             )
         else:
-            if entry["centered"]:
+            if entry["options"].get("centered", False):
                 utils.draw_centered_text(self.screen, entry["text"], row)
             else:
                 self.screen.set_cursor(1, row)

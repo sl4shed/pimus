@@ -53,7 +53,13 @@ def options():
 
 
 def playlists():
+    list = []
     playlists_menu = vmenu.vmenu("Playlists:", screen, controller, config)
+    a = server.get_playlists()
+    for playlist in a["subsonic-response"]["playlists"]["playlist"]:
+        playlists_menu.add_entry(
+            playlist["@name"], select_playlist, {"argument": playlist["@id"]}
+        )
 
     global active_menu
     global last_menu
@@ -67,8 +73,8 @@ def go_back():
     active_menu = last_menu
 
 
-def select_playlist():
-    print("tbm")
+def select_playlist(id):
+    print(id)
 
 
 main_menu = hmenu.hmenu("Pimus 1.0", screen, controller, config)
