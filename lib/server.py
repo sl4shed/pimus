@@ -2,6 +2,9 @@ import requests
 import hashlib
 import uuid
 import xmltodict
+from os import makedirs
+import os.path
+from pathlib import Path
 
 from lib.logger import Logger
 
@@ -21,10 +24,11 @@ class Server:
 
         return f"?u={self.username}&t={token}&s={salt}&c={self.app_name}&v={self.api_version}"
 
-    def endpoint(self, endpoint, queries=[]):
+    def endpoint(self, endpoint, queries={}):
         q = ""
-        for query in queries:
-            q += f"?{query['key']}={query['value']}"
+        for key, value in queries.items():
+            q += f"&{key}={value}"
+
         url = f"{self.address}/{endpoint}{self.get_queries()}{q}"
         request = requests.get(url)
         return xmltodict.parse(request.content)
@@ -52,5 +56,20 @@ class Server:
         return self.handle_response(response)["response"]
 
     def get_playlist(self, id):
-        response = self.endpoint("rest/getPlaylist", [{"id": id}])
+        response = self.endpoint("rest/getPlaylist", {"id": id})
         return self.handle_response(response)["response"]
+
+    def download(self, id, path):
+        url = f"{self.address}/rest/download{self.get_queries()}&id={id}&format=mp3"
+        response = requests.get(url)
+
+        if response.headers["Content-Type"] == "text/xml":
+            self.logger.error("Server Error while downloading song:")
+            content = xmltodict.parse(response.content)
+            self.logger.error(
+                f"{content['subsonic-response']['error']['@code']}: {content['subsonic-response']['error']['@message']}"
+            )
+        else:  # must be binary data
+            file = Path(path)
+            file.parent.mkdir(exist_ok=True, parents=True)
+            file.write_bytes(response.content)

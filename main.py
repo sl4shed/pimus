@@ -10,6 +10,8 @@ from ui import vmenu
 import time
 import pygame
 
+from util.song import Song
+
 ## Initialization ##
 pygame.init()
 pygame.display.set_caption("Pimus Emulator")
@@ -32,8 +34,8 @@ pygame.display.flip()
 ## Main Loop ##
 running = True
 scroll = 0
-global active_menu
-global last_menu
+global menu_history
+menu_history = []
 
 
 def albums():
@@ -61,20 +63,34 @@ def playlists():
             playlist["@name"], select_playlist, {"argument": playlist["@id"]}
         )
 
-    global active_menu
-    global last_menu
-    last_menu = main_menu
-    active_menu = playlists_menu
-
-
-def go_back():
-    global active_menu
-    global last_menu
-    active_menu = last_menu
+    global menu_history
+    menu_history.append(playlists_menu)
 
 
 def select_playlist(id):
-    print(id)
+    playlist = server.get_playlist(id)
+    playlist_menu = vmenu.vmenu(
+        playlist["subsonic-response"]["playlist"]["@name"], screen, controller, config
+    )
+    for song_obj in playlist["subsonic-response"]["playlist"]["entry"]:
+        song = Song(song_obj, config, server, logger)
+        song.download()
+        playlist_menu.add_entry(
+            song_obj["@title"], select_song, {"argument": song_obj["@id"]}
+        )
+
+    global menu_history
+    menu_history.append(playlist_menu)
+
+
+def select_song(song):
+    pass
+
+
+def go_back():
+    global menu_history
+    if len(menu_history) > 1:
+        menu_history.pop()
 
 
 main_menu = hmenu.hmenu("Pimus 1.0", screen, controller, config)
@@ -85,8 +101,7 @@ main_menu.add_entry("Search", search)
 main_menu.add_entry("Options", options)
 
 # set the currently active menu
-active_menu = main_menu
-last_menu = main_menu
+menu_history.append(main_menu)
 
 while running:
     # controller update code
@@ -100,7 +115,7 @@ while running:
         go_back()
 
     screen.clear()
-    active_menu.update()
+    menu_history[len(menu_history) - 1].update()
 
     pygame.display.update()
     screen.draw()
