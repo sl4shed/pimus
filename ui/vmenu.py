@@ -1,8 +1,11 @@
+from lib.config import Config
+from lib.control import Controller
+from lib.lcd import Screen
 from util import utils
 
 
 class vmenu:
-    def __init__(self, title, screen, controller, config):
+    def __init__(self, title, screen: Screen, controller: Controller, config: Config):
         self.title = title
         self.screen = screen
         self.controller = controller

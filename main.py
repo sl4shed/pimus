@@ -3,6 +3,7 @@ from lib import control
 from lib import config as configClass
 from lib import server as serverClass
 from lib import logger as loggerClass
+from ui.progressbar import ProgressBar
 from util import charmap
 from util import utils
 from ui import hmenu
@@ -72,15 +73,23 @@ def select_playlist(id):
     playlist_menu = vmenu.vmenu(
         playlist["subsonic-response"]["playlist"]["@name"], screen, controller, config
     )
-    for song_obj in playlist["subsonic-response"]["playlist"]["entry"]:
-        song = Song(song_obj, config, server, logger)
-        song.download()
-        playlist_menu.add_entry(
-            song_obj["@title"], select_song, {"argument": song_obj["@id"]}
-        )
+
+    progress = ProgressBar(
+        progress=7, title="Downloading...", config=config, screen=screen
+    )
 
     global menu_history
-    menu_history.append(playlist_menu)
+    menu_history.append(progress)
+
+    # for song_obj in playlist["subsonic-response"]["playlist"]["entry"]:
+    #     song = Song(song_obj, config, server, logger)
+    #     song.download()
+    #     playlist_menu.add_entry(
+    #         song_obj["@title"], select_song, {"argument": song_obj["@id"]}
+    #     )
+
+    # global menu_history
+    # menu_history.append(playlist_menu)
 
 
 def select_song(song):
@@ -115,7 +124,11 @@ while running:
         go_back()
 
     screen.clear()
-    menu_history[len(menu_history) - 1].update()
+    current_menu = menu_history[len(menu_history) - 1]
+    current_menu.update()
+    if isinstance(current_menu, ProgressBar):
+        if current_menu.progress + 1 < 100:
+            current_menu.set_progress(current_menu.progress + 1)
 
     pygame.display.update()
     screen.draw()
