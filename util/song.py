@@ -15,6 +15,10 @@ class Song:
             ],  # this is the path that the song is stored on in the server, this way i guess you have the directory structure that you like
         )
 
+        # metadata
+        self.id = self.info["@id"]
+        self.title = self.info["@title"]
+
         self.downloaded = os.path.exists(self.path)
 
     def download(self, force=False):

@@ -11,6 +11,7 @@ from ui import vmenu
 import time
 import pygame
 
+from util.playlist import Playlist
 from util.song import Song
 
 ## Initialization ##
@@ -61,7 +62,13 @@ def playlists():
     a = server.get_playlists()
     for playlist in a["subsonic-response"]["playlists"]["playlist"]:
         playlists_menu.add_entry(
-            playlist["@name"], select_playlist, {"argument": playlist["@id"]}
+            playlist["@name"],
+            {
+                "argument": playlist["@id"],
+                "hold_argument": playlist["@id"],
+                "hold_callback": select_playlist_hold,
+                "callback": select_playlist,
+            },
         )
 
     global menu_history
@@ -69,27 +76,19 @@ def playlists():
 
 
 def select_playlist(id):
-    playlist = server.get_playlist(id)
-    playlist_menu = vmenu.vmenu(
-        playlist["subsonic-response"]["playlist"]["@name"], screen, controller, config
-    )
-
-    progress = ProgressBar(
-        progress=7, title="Downloading...", config=config, screen=screen
-    )
-
-    global menu_history
-    menu_history.append(progress)
-
-    # for song_obj in playlist["subsonic-response"]["playlist"]["entry"]:
-    #     song = Song(song_obj, config, server, logger)
-    #     song.download()
-    #     playlist_menu.add_entry(
-    #         song_obj["@title"], select_song, {"argument": song_obj["@id"]}
-    #     )
+    print("select playlist")
+    # playlist = Playlist(id, server, controller, config, logger, screen)
 
     # global menu_history
-    # menu_history.append(playlist_menu)
+    # menu_history.append(playlist)
+
+
+def select_playlist_hold(id):
+    print("select hold playlist")
+    # playlist = Playlist(id, server, controller, config, logger, screen)
+
+    # global menu_history
+    # menu_history.append(playlist)
 
 
 def select_song(song):
@@ -126,9 +125,6 @@ while running:
     screen.clear()
     current_menu = menu_history[len(menu_history) - 1]
     current_menu.update()
-    if isinstance(current_menu, ProgressBar):
-        if current_menu.progress + 1 < 100:
-            current_menu.set_progress(current_menu.progress + 1)
 
     pygame.display.update()
     screen.draw()

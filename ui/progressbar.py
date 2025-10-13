@@ -1,8 +1,8 @@
+## See https://wokwi.com/projects/333991258811794002 ##
+
 from lib.config import Config
 from lib.lcd import Screen
 from util import utils
-import copy
-import math
 
 
 class ProgressBar:
@@ -118,7 +118,7 @@ class ProgressBar:
             0b11110,
         )
 
-        self.gauge_mask_left = (
+        self.gauge_mask_left = [
             0b01111,
             0b11111,
             0b11111,
@@ -127,9 +127,9 @@ class ProgressBar:
             0b11111,
             0b11111,
             0b01111,
-        )
+        ]
 
-        self.gauge_mask_right = (
+        self.gauge_mask_right = [
             0b11110,
             0b11111,
             0b11111,
@@ -138,9 +138,9 @@ class ProgressBar:
             0b11111,
             0b11111,
             0b11110,
-        )
+        ]
 
-        self.gauge_left_dynamic = (
+        self.gauge_left_dynamic = [
             0b00000,
             0b00000,
             0b00000,
@@ -149,8 +149,8 @@ class ProgressBar:
             0b00000,
             0b00000,
             0b00000,
-        )
-        self.gauge_right_dynamic = (
+        ]
+        self.gauge_right_dynamic = [
             0b00000,
             0b00000,
             0b00000,
@@ -159,19 +159,20 @@ class ProgressBar:
             0b00000,
             0b00000,
             0b00000,
-        )
+        ]
 
         self.screen.create_character(7, self.gauge_empty)
         self.screen.create_character(1, self.gauge_fill_1)
         self.screen.create_character(2, self.gauge_fill_2)
         self.screen.create_character(3, self.gauge_fill_3)
         self.screen.create_character(4, self.gauge_fill_4)
+        self.screen.create_character(0, self.gauge_fill_5)
 
     def draw(self):
-        units_per_pixel = (self.gauge_size_chars * 5) / 100.0
-        value_in_pixels = int(self.progress * units_per_pixel)
+        units_per_pixel = (self.gauge_size_chars * 5.0) / 100.0
+        value_in_pixels = round(self.progress * units_per_pixel)
 
-        tip_position = 0  # 0 = not set, 1 = tip in first char, 2 = tip in middle, 3 = tip in second char
+        tip_position = 0  # 0 = not set, 1 = tip in first char, 2 = tip in middle, 3 = tip in last char
         if value_in_pixels < 5:
             tip_position = 1
         elif value_in_pixels > self.gauge_size_chars * 5.0 - 5:
@@ -181,8 +182,8 @@ class ProgressBar:
 
         move_offset = 4 - ((value_in_pixels - 1) % 5)
 
-        # dynamically create left part of progressbar
-        for i in range(0, 7):
+        # draw left char
+        for i in range(8):
             if tip_position == 1:
                 self.gauge_left_dynamic[i] = (
                     self.gauge_fill_5[i] << move_offset
@@ -191,8 +192,43 @@ class ProgressBar:
                 self.gauge_left_dynamic[i] = self.gauge_fill_5[i]
 
             self.gauge_left_dynamic[i] = (
-                self.gauge_left_dynamic[i] & self.gauge_left_mask[i]
+                self.gauge_left_dynamic[i] & self.gauge_mask_left[i]
             )
+
+        # draw right char
+        for i in range(8):
+            if tip_position == 3:
+                self.gauge_right_dynamic[i] = (
+                    self.gauge_fill_5[i] << move_offset
+                ) | self.gauge_right[i]
+            else:
+                self.gauge_right_dynamic[i] = self.gauge_right[i]
+
+            self.gauge_right_dynamic[i] = (
+                self.gauge_right_dynamic[i] & self.gauge_mask_right[i]
+            )
+
+        self.screen.create_character(5, self.gauge_left_dynamic)
+        self.screen.create_character(6, self.gauge_right_dynamic)
+
+        # "draw" progress bar
+        gauge_string = []
+        for i in range(self.gauge_size_chars):
+            if i == 0:
+                gauge_string.append("\x05")
+            elif i == self.gauge_size_chars - 1:
+                gauge_string.append("\x06")
+            else:
+                if value_in_pixels <= i * 5:
+                    gauge_string.append("\x07")
+                elif value_in_pixels > i * 5 and value_in_pixels < (i + 1) * 5:
+                    gauge_string.append(chr(5 - move_offset))
+                else:
+                    gauge_string.append("\x00")
+
+        self.screen.set_cursor(0, 1)
+        self.screen.write_string("".join(gauge_string))
+        self.screen.set_cursor(0, 0)
 
         # title update
         if utils.millis() - self.last_title_scroll > self.scroll_interval:

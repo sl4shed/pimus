@@ -46,10 +46,12 @@ class vmenu:
             ],
         )
 
-        self.add_entry(self.title, None, {"centered": True, "selectable": False})
+        self.add_entry(
+            self.title, {"centered": True, "selectable": False, "callback": None}
+        )
 
-    def add_entry(self, text, callback, options):
-        self.entries.append({"text": text, "callback": callback, "options": options})
+    def add_entry(self, text, options):
+        self.entries.append({"text": text, "options": options})
 
     def update(self):
         # title update
@@ -77,15 +79,26 @@ class vmenu:
             elif self.cursor == 0 and self.entry_index > 0:
                 self.entry_index -= 1
 
-        elif self.controller.just_pressed("select"):
+        elif self.controller.just_released("select"):
             idx = self.entry_index + self.cursor
             if 0 <= idx < len(self.entries):
                 if self.entries[idx]["options"].get("argument", None):
-                    self.entries[idx]["callback"](
+                    self.entries[idx]["options"]["callback"](
                         self.entries[idx]["options"]["argument"]
                     )
                 else:
-                    self.entries[idx]["callback"]()
+                    self.entries[idx]["options"]["callback"]()
+        elif self.controller.is_repeating("select"):
+            idx = self.entry_index + self.cursor
+            if 0 <= idx < len(self.entries):
+                if not self.entries[idx]["options"].get("hold_callback", None):
+                    return
+                if self.entries[idx]["options"].get("hold_argument", None):
+                    self.entries[idx]["options"]["hold_callback"](
+                        self.entries[idx]["options"]["hold_argument"]
+                    )
+                else:
+                    self.entries[idx]["options"]["hold_callback"]()
 
         self.draw()
 
