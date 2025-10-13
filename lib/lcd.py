@@ -81,7 +81,17 @@ class Screen:
 
     def create_character(self, index, character):
         if index > 7 or index < 0:
-            return  # you're not allowed to have more than 8 chars
+            return  # not allowed to have more than 8 chars
+
+        if isinstance(character, (list, tuple)) and all(
+            isinstance(row, int) for row in character
+        ):
+            # convert rows like 0b01010 -> [0,1,0,1,0]
+            converted = []
+            for row in character:
+                bits = bin(row)[2:].rjust(5, "0")  # string like "01010"
+                converted.append([int(b) for b in bits])
+            character = converted
 
         self.custom_characters[index] = character
 
