@@ -77,18 +77,18 @@ def playlists():
 
 def select_playlist(id):
     print("select playlist")
-    # playlist = Playlist(id, server, controller, config, logger, screen)
+    playlist = Playlist(id, False, server, controller, config, logger, screen)
 
-    # global menu_history
-    # menu_history.append(playlist)
+    global menu_history
+    menu_history.append(playlist)
 
 
 def select_playlist_hold(id):
     print("select hold playlist")
-    # playlist = Playlist(id, server, controller, config, logger, screen)
+    playlist = Playlist(id, True, server, controller, config, logger, screen)
 
-    # global menu_history
-    # menu_history.append(playlist)
+    global menu_history
+    menu_history.append(playlist)
 
 
 def select_song(song):

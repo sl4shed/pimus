@@ -50,6 +50,9 @@ class vmenu:
             self.title, {"centered": True, "selectable": False, "callback": None}
         )
 
+        self.creation_time = utils.millis()
+        self.input_cooldown = 200  # ms
+
     def add_entry(self, text, options):
         self.entries.append({"text": text, "options": options})
 
@@ -61,6 +64,11 @@ class vmenu:
 
         if self.entries[self.entry_index]["options"].get("selectable", None) == False:
             self.cursor = 1
+
+        # Cooldown to prevent instant selection from previous menu
+        if utils.millis() - self.creation_time < self.input_cooldown:
+            self.draw()
+            return
 
         # controller stuff
         if self.controller.just_pressed("down"):
@@ -79,26 +87,27 @@ class vmenu:
             elif self.cursor == 0 and self.entry_index > 0:
                 self.entry_index -= 1
 
-        elif self.controller.just_released("select"):
+        elif self.controller.just_held("select"):
             idx = self.entry_index + self.cursor
             if 0 <= idx < len(self.entries):
-                if self.entries[idx]["options"].get("argument", None):
-                    self.entries[idx]["options"]["callback"](
-                        self.entries[idx]["options"]["argument"]
-                    )
-                else:
-                    self.entries[idx]["options"]["callback"]()
-        elif self.controller.is_repeating("select"):
+                entry = self.entries[idx]
+                if entry["options"].get("hold_callback", None):
+                    if entry["options"].get("hold_argument", None):
+                        entry["options"]["hold_callback"](
+                            entry["options"]["hold_argument"]
+                        )
+                    else:
+                        entry["options"]["hold_callback"]()
+
+        elif self.controller.is_click("select"):
             idx = self.entry_index + self.cursor
             if 0 <= idx < len(self.entries):
-                if not self.entries[idx]["options"].get("hold_callback", None):
-                    return
-                if self.entries[idx]["options"].get("hold_argument", None):
-                    self.entries[idx]["options"]["hold_callback"](
-                        self.entries[idx]["options"]["hold_argument"]
-                    )
-                else:
-                    self.entries[idx]["options"]["hold_callback"]()
+                entry = self.entries[idx]
+                if entry["options"].get("callback", None):
+                    if entry["options"].get("argument", None):
+                        entry["options"]["callback"](entry["options"]["argument"])
+                    else:
+                        entry["options"]["callback"]()
 
         self.draw()
 

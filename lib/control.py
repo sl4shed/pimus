@@ -1,8 +1,8 @@
 import pygame
 import time
+
+
 # emulator class
-
-
 class Controller:
     def __init__(self):
         self.current_state = {
@@ -19,6 +19,10 @@ class Controller:
         self.repeat_delay = 0.5
         self.repeat_rate = 0.15
 
+        self.hold_duration = 0.5  # Time in seconds to consider a press a "hold"
+        self.hold_triggered = {key: False for key in self.current_state}
+        self.prev_hold_triggered = {key: False for key in self.current_state}
+
         self.key_map = {
             pygame.K_UP: "up",
             pygame.K_w: "up",
@@ -34,20 +38,28 @@ class Controller:
 
     def update(self, events):
         current_time = time.time()
-
         self.previous_state = self.current_state.copy()
+        self.prev_hold_triggered = self.hold_triggered.copy()
 
+        # Process events
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key in self.key_map:
                     button = self.key_map[event.key]
+                    if not self.current_state[button]:  # First press
+                        self.press_time[button] = current_time
+                        self.hold_triggered[button] = False
                     self.current_state[button] = True
-                    self.press_time[button] = current_time
-
             elif event.type == pygame.KEYUP:
                 if event.key in self.key_map:
                     button = self.key_map[event.key]
                     self.current_state[button] = False
+
+        # Check for holds
+        for button, is_pressed in self.current_state.items():
+            if is_pressed and not self.hold_triggered[button]:
+                if (current_time - self.press_time[button]) > self.hold_duration:
+                    self.hold_triggered[button] = True
 
     def is_pressed(self, button):
         return self.current_state[button]
@@ -57,6 +69,14 @@ class Controller:
 
     def just_released(self, button):
         return not self.current_state[button] and self.previous_state[button]
+
+    def is_click(self, button):
+        """Returns true on release if the button was not held."""
+        return self.just_released(button) and not self.prev_hold_triggered[button]
+
+    def just_held(self, button):
+        """Returns true for one frame when hold duration is reached."""
+        return self.hold_triggered[button] and not self.prev_hold_triggered[button]
 
     def is_repeating(self, button):
         if not self.current_state[button]:
