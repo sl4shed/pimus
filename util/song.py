@@ -39,7 +39,6 @@ class Song:
         self.server.download(self.info["@id"], self.path)
 
     def play(self):
-        print(f"tryna play {self.path}")
         pygame.mixer.music.load(self.path)
         pygame.mixer.music.play()
 
@@ -52,3 +51,9 @@ class Song:
             self.paused = True
 
         return not self.paused
+
+    def set_volume(self, volume):
+        pygame.mixer.music.set_volume(volume)
+
+    def get_volume(self):
+        return pygame.mixer.music.get_volume()

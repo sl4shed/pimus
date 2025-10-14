@@ -112,6 +112,17 @@ class Screen:
                 self.state[self.cursor_y][self.cursor_x + i] = self.custom_characters[
                     ord(char)
                 ]
+            elif ord(char) == 255:
+                self.state[self.cursor_y][self.cursor_x + i] = [
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1],
+                ]
             else:
                 if not self.charmap.get(char):
                     self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(" ")

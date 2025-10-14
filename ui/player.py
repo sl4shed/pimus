@@ -54,7 +54,7 @@ class Player:
 
         self.menu.set_progress(song_progress)
         self.menu.set_title(current_song.title)
-        if not self.playing and self.last_song_index < self.song_index:
+        if not self.playing and self.last_song_index != self.song_index:
             current_song.play()
             self.last_song_index = self.song_index
             self.playing = True
@@ -72,6 +72,19 @@ class Player:
                 self.song_index += 1
                 self.pause_start_time = None
                 self.total_pause_time = 0
+        elif self.controller.is_pressed("select") and self.controller.is_click("left"):
+            # skip song
+            if self.song_index - 1 > 0:
+                self.playing = False
+                self.song_index -= 1
+                self.pause_start_time = None
+                self.total_pause_time = 0
+        elif self.controller.is_pressed("select") and self.controller.is_click("up"):
+            # volume up
+            current_song.set_volume(current_song.get_volume() + 0.1)
+        elif self.controller.is_pressed("select") and self.controller.is_click("down"):
+            # volume down
+            current_song.set_volume(current_song.get_volume() - 0.1)
 
     def skip(self):
         if self.song_index + 1 <= len(self.songs):

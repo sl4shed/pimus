@@ -11,7 +11,9 @@ from ui import vmenu
 import time
 import pygame
 
+from lib.bluetooth import Bluetooth
 from util.playlist import Playlist
+from util.settings import Settings
 from util.song import Song
 
 ## Initialization ##
@@ -30,6 +32,7 @@ server = serverClass.Server(
     "PiMus 1.0",
     logger,
 )
+bluetooth = Bluetooth()
 
 pygame.display.flip()
 
@@ -53,7 +56,9 @@ def search():
 
 
 def options():
-    pass
+    menu = Settings(config, screen, controller, bluetooth)
+    global menu_history
+    menu_history.append(menu)
 
 
 def playlists():
@@ -76,7 +81,6 @@ def playlists():
 
 
 def select_playlist(id):
-    print("select playlist")
     playlist = Playlist(id, False, server, controller, config, logger, screen)
 
     global menu_history
@@ -84,7 +88,6 @@ def select_playlist(id):
 
 
 def select_playlist_hold(id):
-    print("select hold playlist")
     playlist = Playlist(id, True, server, controller, config, logger, screen)
 
     global menu_history

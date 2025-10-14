@@ -166,7 +166,8 @@ class ProgressBar:
         self.screen.create_character(2, self.gauge_fill_2)
         self.screen.create_character(3, self.gauge_fill_3)
         self.screen.create_character(4, self.gauge_fill_4)
-        self.screen.create_character(0, self.gauge_fill_5)
+        # self.screen.create_character(0, self.gauge_fill_5)
+        # you now have 1 empty character to put something in!!!
 
     def draw(self):
         units_per_pixel = (self.gauge_size_chars * 5.0) / 100.0
@@ -224,7 +225,8 @@ class ProgressBar:
                 elif value_in_pixels > i * 5 and value_in_pixels < (i + 1) * 5:
                     gauge_string.append(chr(5 - move_offset))
                 else:
-                    gauge_string.append("\x00")
+                    # gauge_string.append("\x00")
+                    gauge_string.append(chr(255))
 
         self.screen.set_cursor(0, 1)
         self.screen.write_string("".join(gauge_string))
