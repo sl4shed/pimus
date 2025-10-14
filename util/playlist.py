@@ -5,6 +5,7 @@ from lib.lcd import Screen
 from lib.logger import Logger
 from lib.server import Server
 from ui.hmenu import hmenu
+from ui.player import Player
 from ui.progressbar import ProgressBar
 from ui.vmenu import vmenu
 from util.song import Song
@@ -78,22 +79,21 @@ class Playlist:
         self.make_playlist_menu()
 
     def play(self):
-        pass
+        self.menu = Player(self.songs, self.config, self.screen, self.controller)
 
     def shuffle(self):
         pass
 
-    def sync(self):
+    def sync(self, force=False):
         self.song_index = 0
         self.menu = ProgressBar(
             progress=0, title="Syncing...", config=self.config, screen=self.screen
         )
         self.needs_syncing = True
+        self.force_sync = force
 
     def select_song(self, i):
-        song = self.songs[i]
-        pygame.mixer.music.load(song.path)
-        pygame.mixer.music.play()
+        pass
 
     def update(self):
         self.menu.update()
@@ -104,6 +104,6 @@ class Playlist:
                 return
 
             progress = (100 * (self.song_index + 1)) / len(self.songs)
-            self.songs[self.song_index].download()
+            self.songs[self.song_index].download(self.force_sync)
             self.menu.set_progress(progress)
             self.song_index += 1
