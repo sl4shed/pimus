@@ -50,9 +50,6 @@ class vmenu:
             self.title, {"centered": True, "selectable": False, "callback": None}
         )
 
-        self.creation_time = utils.millis()
-        self.input_cooldown = 200  # ms
-
     def add_entry(self, text, options):
         self.entries.append({"text": text, "options": options})
 
@@ -61,6 +58,10 @@ class vmenu:
         if utils.millis() - self.last_title_scroll > self.scroll_interval:
             self.title_scroll += 1
             self.last_title_scroll = utils.millis()
+
+        if not hasattr(self, "creation_time"):
+            self.creation_time = utils.millis()
+            self.input_cooldown = 200  # ms
 
         if self.entries[self.entry_index]["options"].get("selectable", None) == False:
             self.cursor = 1

@@ -69,7 +69,13 @@ class Playlist:
 
             self.menu.add_entry("Shuffle", {"argument": None, "callback": self.shuffle})
 
+            self.menu.add_entry("View", {"argument": None, "callback": self.view})
+
             self.menu.add_entry("Sync", {"argument": None, "callback": self.sync})
+
+    def view(self):
+        self.hold = True
+        self.make_playlist_menu()
 
     def play(self):
         pass

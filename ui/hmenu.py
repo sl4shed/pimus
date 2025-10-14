@@ -18,8 +18,8 @@ class hmenu:
         self.last_title_scroll = 0
         self.scroll_interval = self.config.get("scroll_speed")
 
-    def add_entry(self, text, callback):
-        self.entries.append({"text": text, "callback": callback})
+    def add_entry(self, text, options):
+        self.entries.append({"text": text, "options": options})
 
     def update(self):
         # title update
@@ -29,7 +29,12 @@ class hmenu:
 
         # selection updating
         if self.controller.just_pressed("select"):
-            self.entries[self.entry_index]["callback"]()
+            if self.entries[self.entry_index]["options"].get("argument", None):
+                self.entries[self.entry_index]["options"]["callback"](
+                    self.entries[self.entry_index]["options"]["argument"]
+                )
+            else:
+                self.entries[self.entry_index]["options"]["callback"]()
 
         if (
             self.controller.just_pressed("right")

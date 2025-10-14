@@ -102,11 +102,11 @@ def go_back():
 
 
 main_menu = hmenu.hmenu("Pimus 1.0", screen, controller, config)
-main_menu.add_entry("Playlists", playlists)
-main_menu.add_entry("Albums", albums)
-main_menu.add_entry("Artists", artists)
-main_menu.add_entry("Search", search)
-main_menu.add_entry("Options", options)
+main_menu.add_entry("Playlists", {"callback": playlists})
+main_menu.add_entry("Albums", {"callback": albums})
+main_menu.add_entry("Artists", {"callback": artists})
+main_menu.add_entry("Search", {"callback": search})
+main_menu.add_entry("Options", {"callback": options})
 
 # set the currently active menu
 menu_history.append(main_menu)

@@ -49,7 +49,8 @@ class Server:
 
     def ping(self):
         response = self.endpoint("rest/ping.view")
-        return self.handle_response(response)["valid"]
+        self.online = self.handle_response(response)["valid"]
+        return self.online
 
     def get_playlists(self):
         response = self.endpoint("rest/getPlaylists")

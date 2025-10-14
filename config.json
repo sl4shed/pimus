@@ -1,6 +1,6 @@
 {
     "server": {
-        "address": "http://192.168.1.148:6969",
+        "address": "http://100.120.210.100:6969",
         "username": "music",
         "password": "the plug a bit weird"
     },
