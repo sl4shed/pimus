@@ -18,6 +18,8 @@ class Song:
         # metadata
         self.id = self.info["@id"]
         self.title = self.info["@title"]
+        self.artist = self.info["@artist"]
+        self.album = self.info["@album"]
 
         self.downloaded = os.path.exists(self.path)
 
