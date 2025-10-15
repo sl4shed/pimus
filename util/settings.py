@@ -13,10 +13,10 @@ class Settings:
         controller: Controller,
         bluetooth: Bluetooth,
     ):
-        self.config = config
-        self.screen = screen
-        self.controller = controller
-        self.bluetooth = bluetooth
+        self.config: Config = config
+        self.screen: Screen = screen
+        self.controller: Controller = controller
+        self.bt: Bluetooth = bluetooth
 
         self.menu = hmenu("Options", self.screen, self.controller, self.config)
 
@@ -25,7 +25,8 @@ class Settings:
         self.menu.add_entry("Display", {"callback": self.display})
 
     def bluetooth(self):
-        self.bluetooth.scan_and_show_devices(10)
+        self.bt.start_discovery()
+        
 
     def wifi(self):
         pass
