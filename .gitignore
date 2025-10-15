@@ -221,3 +221,5 @@ config.json
 songs/
 logs/
 .zed/
+pimus.log
+pyvenv.cfg
