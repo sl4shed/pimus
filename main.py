@@ -24,7 +24,7 @@ surface = pygame.display.set_mode((720, 130))
 config = configClass.Config("./config.json")
 controller = control.Controller()
 screen = lcd.Screen(2, 16, charmap.charmap, 0, 0, (102, 168, 0), surface)
-logger = loggerClass.Logger("./pimus.log")
+logger = loggerClass.Logger("./logs/pimus.log")
 server = serverClass.Server(
     config.get("server.address"),
     config.get("server.username"),
