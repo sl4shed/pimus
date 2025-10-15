@@ -32,7 +32,7 @@ server = serverClass.Server(
     "PiMus 1.0",
     logger,
 )
-bluetooth = Bluetooth()
+bluetooth = Bluetooth(logger)
 
 pygame.display.flip()
 

@@ -1,3 +1,4 @@
+import pygame
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
@@ -25,8 +26,11 @@ class Settings:
         self.menu.add_entry("Display", {"callback": self.display})
 
     def bluetooth(self):
+        # todo progress bar here
         self.bt.start_discovery()
-        
+        time = int(self.config.get("bluetooth_discovery_time"))
+        pygame.time.wait(time)
+        self.bt.stop_discovery()
 
     def wifi(self):
         pass
