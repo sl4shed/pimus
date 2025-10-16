@@ -4,6 +4,7 @@ from lib.control import Controller
 from lib.lcd import Screen
 from ui.hmenu import hmenu
 from lib.bluetooth import Bluetooth
+from ui.vmenu import vmenu
 
 
 class Settings:
@@ -31,6 +32,39 @@ class Settings:
         time = int(self.config.get("bluetooth_discovery_time"))
         pygame.time.wait(time)
         self.bt.stop_discovery()
+        self.menu = vmenu("Bluetooth", self.screen, self.controller, self.config)
+
+        self.devices = self.bt.get_devices()
+        self.bt_connected = False
+        for device in self.devices:
+            if not device["Connected"]:
+                self.menu.add_entry(
+                    device["Name"],
+                    {"callback": self.bt_connect, "argument": device["Address"]},
+                )
+            else:
+                self.bt_connected = True
+        if self.bt_connected:
+            self.menu.add_entry(
+                "Disconnect All", {"centered": True, "callback": self.bt_disconnect_all}
+            )
+
+    def bt_disconnect_all(self):
+        for device in self.devices:
+            if device["Connected"]:
+                self.bt.disconnect(device["Address"])
+
+    def bt_connect(self, address):
+        device = None
+        for device in self.devices:
+            if device["Address"] == address:
+                device = device
+                break
+        if device:
+            self.bt.connect(device["Address"])
+
+    def bt_disconnect(self, address):
+        pass
 
     def wifi(self):
         pass

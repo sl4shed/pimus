@@ -25,6 +25,32 @@ class Bluetooth:
 
         return devices
 
+    def get_device(self, address):
+        try:
+            device = self.bus.get(
+                "org.bluez", f"/org/bluez/hci0/dev_{address.replace(':', '_')}"
+            )
+            return device
+        except Exception as e:
+            self.logger.error(f"Failed to get device: {e}")
+            return None
+
+    def connect(self, address):
+        device = self.get_device(address)
+        if device:
+            device.Connect()
+            self.logger.info(f"Connected to device {address}")
+        else:
+            self.logger.error(f"Failed to connect to device {address}")
+
+    def disconnect(self, address):
+        device = self.get_device(address)
+        if device:
+            device.Disconnect()
+            self.logger.info(f"Disconnected from device {address}")
+        else:
+            self.logger.error(f"Failed to disconnect from device {address}")
+
     def start_discovery(self):
         try:
             self.adapter.StartDiscovery()
