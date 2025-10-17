@@ -5,6 +5,7 @@ from lib.lcd import Screen
 from ui.hmenu import hmenu
 from lib.bluetooth import Bluetooth
 from ui.vmenu import vmenu
+from util.timer_progressbar import TimerProgressBar
 
 
 class Settings:
@@ -27,10 +28,21 @@ class Settings:
         self.menu.add_entry("Display", {"callback": self.display})
 
     def bluetooth(self):
-        # todo progress bar here
+        # for future me navigating this mess
+        # timerprogressbar has a callback where i stop bt discovery
+        # matter of fact its right beneath this function
+        # you dumbass
+        self.menu = TimerProgressBar(
+            self.config.get("bluetooth_discovery_time"),
+            "Discovering Bluetooth Devices...",
+            15,
+            self.stop_bt_discovery,
+            self.config,
+            self.screen,
+        )
         self.bt.start_discovery()
-        time = int(self.config.get("bluetooth_discovery_time"))
-        pygame.time.wait(time)
+
+    def stop_bt_discovery(self):
         self.bt.stop_discovery()
         self.menu = vmenu("Bluetooth", self.screen, self.controller, self.config)
 
@@ -64,7 +76,13 @@ class Settings:
             self.bt.connect(device["Address"])
 
     def bt_disconnect(self, address):
-        pass
+        device = None
+        for device in self.devices:
+            if device["Address"] == address:
+                device = device
+                break
+        if device:
+            self.bt.disconnect(device["Address"])
 
     def wifi(self):
         pass
