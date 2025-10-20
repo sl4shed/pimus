@@ -44,7 +44,10 @@ menu_history = []
 
 
 def albums():
-    pass
+    list = []
+    albums_menu = vmenu.vmenu("Albums:", screen, controller, config)
+    a = server.get_albums()
+    print(a)
 
 
 def artists():

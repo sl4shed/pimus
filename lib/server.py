@@ -60,6 +60,10 @@ class Server:
         response = self.endpoint("rest/getPlaylist", {"id": id})
         return self.handle_response(response)["response"]
 
+    def get_albums(self):
+        response = self.endpoint("getAlbumList", {"type": "newest", "size": 500})
+        return self.handle_response(response)["response"]
+
     def download(self, id, path):
         url = f"{self.address}/rest/download{self.get_queries()}&id={id}&format=mp3"
         response = requests.get(url)
