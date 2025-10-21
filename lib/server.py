@@ -61,7 +61,7 @@ class Server:
         return self.handle_response(response)["response"]
 
     def get_albums(self):
-        response = self.endpoint("getAlbumList", {"type": "newest", "size": 500})
+        response = self.endpoint("rest/getAlbumList", {"type": "newest", "size": 500})
         return self.handle_response(response)["response"]
 
     def download(self, id, path):

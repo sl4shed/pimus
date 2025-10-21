@@ -47,7 +47,27 @@ def albums():
     list = []
     albums_menu = vmenu.vmenu("Albums:", screen, controller, config)
     a = server.get_albums()
-    print(a)
+    for album in a["subsonic-response"]["albumList"]["album"]:
+        albums_menu.add_entry(
+            album["@name"],
+            {
+                "argument": album["@id"],
+                "hold_argument": album["@id"],
+                "hold_callback": select_album_hold,
+                "callback": select_album,
+            },
+        )
+
+    global menu_history
+    menu_history.append(albums_menu)
+
+
+def select_album(id):
+    print("select album")
+
+
+def select_album_hold(id):
+    print("select album hold")
 
 
 def artists():
