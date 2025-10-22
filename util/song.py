@@ -1,14 +1,18 @@
 import os.path
-
+from lib.config import Config
+from lib.logger import Logger
+from lib.server import Server
+import mpv
 import pygame
 
 
 class Song:
-    def __init__(self, info, config, server, logger):
+    def __init__(self, info, config: Config, server: Server, logger: Logger, player):
         self.info = info
         self.server = server
         self.config = config
         self.logger = logger
+        self.player = player
 
         self.path = os.path.join(
             self.config.get("songs_folder"),
@@ -39,15 +43,17 @@ class Song:
         self.server.download(self.info["@id"], self.path)
 
     def play(self):
-        pygame.mixer.music.load(self.path)
-        pygame.mixer.music.play()
+        self.player.play(self.path)
+        # pygame.mixer.music.load(self.path)
+        # pygame.mixer.music.play()
 
     def cycle_pause(self):
         if self.paused:
-            pygame.mixer.music.unpause()
+            # todo mpv pause
+            # pygame.mixer.music.unpause()
             self.paused = False
         else:
-            pygame.mixer.music.pause()
+            # pygame.mixer.music.pause()
             self.paused = True
 
         return not self.paused

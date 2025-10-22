@@ -12,6 +12,7 @@ import time
 import pygame
 
 from lib.bluetooth import Bluetooth
+from util.album import Album
 from util.playlist import Playlist
 from util.settings import Settings
 from util.song import Song
@@ -63,11 +64,17 @@ def albums():
 
 
 def select_album(id):
-    print("select album")
+    album = Album(id, False, server, controller, config, logger, screen)
+
+    global menu_history
+    menu_history.append(album)
 
 
 def select_album_hold(id):
-    print("select album hold")
+    album = Album(id, True, server, controller, config, logger, screen)
+
+    global menu_history
+    menu_history.append(album)
 
 
 def artists():
