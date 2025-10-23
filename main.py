@@ -10,6 +10,7 @@ from ui import hmenu
 from ui import vmenu
 import time
 import pygame
+import mpv
 
 from lib.bluetooth import Bluetooth
 from util.album import Album
@@ -34,6 +35,7 @@ server = serverClass.Server(
     logger,
 )
 bluetooth = Bluetooth(logger)
+player = mpv.MPV()
 
 pygame.display.flip()
 
@@ -64,14 +66,14 @@ def albums():
 
 
 def select_album(id):
-    album = Album(id, False, server, controller, config, logger, screen)
+    album = Album(id, False, server, controller, config, logger, screen, player)
 
     global menu_history
     menu_history.append(album)
 
 
 def select_album_hold(id):
-    album = Album(id, True, server, controller, config, logger, screen)
+    album = Album(id, True, server, controller, config, logger, screen, player)
 
     global menu_history
     menu_history.append(album)

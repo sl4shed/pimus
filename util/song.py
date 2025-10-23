@@ -49,17 +49,22 @@ class Song:
 
     def cycle_pause(self):
         if self.paused:
-            # todo mpv pause
-            # pygame.mixer.music.unpause()
+            self.player.command("keypress", "SPACE")
             self.paused = False
         else:
-            # pygame.mixer.music.pause()
+            self.player.command("keypress", "SPACE")
             self.paused = True
 
         return not self.paused
 
+    def increase_volume(self):
+        self.player.command("keypress", "*")
+
+    def decrease_volume(self):
+        self.player.command("keypress", "/")
+
     def set_volume(self, volume):
-        pygame.mixer.music.set_volume(volume)
+        self.player.command("set", "volume", volume)
 
     def get_volume(self):
-        return pygame.mixer.music.get_volume()
+        return self.player.observe_property("volume")

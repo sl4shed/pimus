@@ -1,3 +1,4 @@
+from mpv import MPV
 import pygame
 from lib.config import Config
 from lib.control import Controller
@@ -21,6 +22,7 @@ class Playlist:
         config: Config,
         logger: Logger,
         screen: Screen,
+        player: MPV,
     ):
         self.id = id
         self.hold = hold
@@ -29,13 +31,14 @@ class Playlist:
         self.config = config
         self.logger = logger
         self.screen = screen
+        self.player = player
 
         self.playlist = self.server.get_playlist(id)
         self.needs_syncing = False
 
         self.songs = []
         for song_obj in self.playlist["subsonic-response"]["playlist"]["entry"]:
-            song = Song(song_obj, self.config, self.server, self.logger)
+            song = Song(song_obj, self.config, self.server, self.logger, self.player)
             self.songs.append(song)
             if not song.downloaded:
                 self.needs_syncing = True  # if even ONE song isnt downloaded, the playlist needs syncing.

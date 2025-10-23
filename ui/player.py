@@ -81,10 +81,10 @@ class Player:
                 self.total_pause_time = 0
         elif self.controller.is_pressed("select") and self.controller.is_click("up"):
             # volume up
-            current_song.set_volume(current_song.get_volume() + 0.1)
+            current_song.increase_volume()
         elif self.controller.is_pressed("select") and self.controller.is_click("down"):
             # volume down
-            current_song.set_volume(current_song.get_volume() - 0.1)
+            current_song.decrease_volume()
 
     def skip(self):
         if self.song_index + 1 <= len(self.songs):
