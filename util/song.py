@@ -1,13 +1,14 @@
 import os.path
+from mpv import MPV
 from lib.config import Config
 from lib.logger import Logger
 from lib.server import Server
-import mpv
-import pygame
 
 
 class Song:
-    def __init__(self, info, config: Config, server: Server, logger: Logger, player):
+    def __init__(
+        self, info, config: Config, server: Server, logger: Logger, player: MPV
+    ):
         self.info = info
         self.server = server
         self.config = config
@@ -20,8 +21,6 @@ class Song:
                 "@path"
             ],  # this is the path that the song is stored on in the server, this way i guess you have the directory structure that you like
         )
-
-        # print(self.info)
 
         # metadata
         self.id = self.info["@id"]
@@ -44,27 +43,23 @@ class Song:
 
     def play(self):
         self.player.play(self.path)
-        # pygame.mixer.music.load(self.path)
-        # pygame.mixer.music.play()
 
     def cycle_pause(self):
         if self.paused:
-            self.player.command("keypress", "SPACE")
+            self.player.pause = False
             self.paused = False
         else:
-            self.player.command("keypress", "SPACE")
+            self.player.pause = True
             self.paused = True
 
         return not self.paused
 
-    def increase_volume(self):
-        self.player.command("keypress", "*")
-
-    def decrease_volume(self):
-        self.player.command("keypress", "/")
-
     def set_volume(self, volume):
+        if volume < 0:
+            return
+        if volume > 200:
+            return
         self.player.command("set", "volume", volume)
 
     def get_volume(self):
-        return self.player.observe_property("volume")
+        return self.player.volume

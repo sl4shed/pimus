@@ -37,7 +37,6 @@ class Album:
         self.needs_syncing = False
 
         self.songs = []
-        print(self.album)
 
         if not isinstance(self.album["subsonic-response"]["album"]["song"], list):
             song = Song(
