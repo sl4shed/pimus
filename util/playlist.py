@@ -10,6 +10,7 @@ from ui.player import Player
 from ui.progressbar import ProgressBar
 from ui.vmenu import vmenu
 from util.song import Song
+from util.song_collection import SongCollection
 
 
 class Playlist:
@@ -43,70 +44,18 @@ class Playlist:
             if not song.downloaded:
                 self.needs_syncing = True  # if even ONE song isnt downloaded, the playlist needs syncing.
 
-        if self.needs_syncing:
-            self.sync()
-        else:
-            self.make_playlist_menu()
-
-    def make_playlist_menu(self):
-        if self.hold:
-            self.menu = vmenu(
-                self.playlist["subsonic-response"]["playlist"]["@name"],
-                self.screen,
-                self.controller,
-                self.config,
-            )
-
-            for i, song in enumerate(self.songs):
-                self.menu.add_entry(
-                    song.title, {"argument": i, "callback": self.select_song}
-                )
-        else:
-            self.menu = hmenu(
-                self.playlist["subsonic-response"]["playlist"]["@name"],
-                self.screen,
-                self.controller,
-                self.config,
-            )
-
-            self.menu.add_entry("Play", {"argument": None, "callback": self.play})
-
-            self.menu.add_entry("Shuffle", {"argument": None, "callback": self.shuffle})
-
-            self.menu.add_entry("View", {"argument": None, "callback": self.view})
-
-            self.menu.add_entry("Sync", {"argument": None, "callback": self.sync})
-
-    def view(self):
-        self.hold = True
-        self.make_playlist_menu()
-
-    def play(self):
-        self.menu = Player(self.songs, self.config, self.screen, self.controller)
-
-    def shuffle(self):
-        pass
-
-    def sync(self, force=False):
-        self.song_index = 0
-        self.menu = ProgressBar(
-            progress=0, title="Syncing...", config=self.config, screen=self.screen
+        print(self.playlist)
+        self.menu = SongCollection(
+            self.songs,
+            self.playlist["subsonic-response"]["playlist"]["@name"],
+            self.hold,
+            self.server,
+            self.controller,
+            self.config,
+            self.logger,
+            self.screen,
+            self.player,
         )
-        self.needs_syncing = True
-        self.force_sync = force
-
-    def select_song(self, i):
-        pass
 
     def update(self):
         self.menu.update()
-
-        if isinstance(self.menu, ProgressBar):  # syncing
-            if self.song_index >= len(self.songs):
-                self.make_playlist_menu()  # done syncing
-                return
-
-            progress = (100 * (self.song_index + 1)) / len(self.songs)
-            self.songs[self.song_index].download(self.force_sync)
-            self.menu.set_progress(progress)
-            self.song_index += 1

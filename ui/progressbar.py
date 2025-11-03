@@ -171,7 +171,7 @@ class ProgressBar:
 
     def draw(self):
         units_per_pixel = (self.gauge_size_chars * 5.0) / 100.0
-        value_in_pixels = round(self.progress * units_per_pixel)
+        value_in_pixels = round(max(1, self.progress) * units_per_pixel)
 
         tip_position = 0  # 0 = not set, 1 = tip in first char, 2 = tip in middle, 3 = tip in last char
         if value_in_pixels < 5:

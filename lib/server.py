@@ -65,7 +65,7 @@ class Server:
         return self.handle_response(response)["response"]
 
     def get_album(self, id):
-        response = self.endpoint("rest/getAlbum", {"id": id})
+        print(f"get_album: {id}")
         return self.handle_response(response)["response"]
 
     def download(self, id, path):

@@ -48,8 +48,11 @@ class Player:
             current_song.duration < song_progress_duration
             and self.song_index + 1 <= len(self.songs)
         ):
-            self.playing = False
-            self.song_index += 1
+            if self.song_index + 1 <= len(self.songs):
+                self.playing = False
+                self.song_index += 1
+                self.pause_start_time = None
+                self.total_pause_time = 0
         song_progress = int((100 * song_progress_duration) / current_song.duration)
 
         self.menu.set_progress(song_progress)

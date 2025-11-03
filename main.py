@@ -66,6 +66,7 @@ def albums():
 
 
 def select_album(id):
+    print(f"select_album: {id}")
     album = Album(id, False, server, controller, config, logger, screen, player)
 
     global menu_history
@@ -113,14 +114,14 @@ def playlists():
 
 
 def select_playlist(id):
-    playlist = Playlist(id, False, server, controller, config, logger, screen)
+    playlist = Playlist(id, False, server, controller, config, logger, screen, player)
 
     global menu_history
     menu_history.append(playlist)
 
 
 def select_playlist_hold(id):
-    playlist = Playlist(id, True, server, controller, config, logger, screen)
+    playlist = Playlist(id, True, server, controller, config, logger, screen, player)
 
     global menu_history
     menu_history.append(playlist)
