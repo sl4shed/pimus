@@ -66,7 +66,6 @@ def albums():
 
 
 def select_album(id):
-    print(f"select_album: {id}")
     album = Album(id, False, server, controller, config, logger, screen, player)
 
     global menu_history
@@ -81,6 +80,45 @@ def select_album_hold(id):
 
 
 def artists():
+    artists = server.get_artists()
+    artists_alphabetic_menu = vmenu.vmenu("Artists", screen, controller, config)
+
+    for index in artists["subsonic-response"]["artists"]["index"]:
+        artists_alphabetic_menu.add_entry(
+            index["@name"],
+            {
+                "argument": index["@name"],
+                "callback": select_artist_category,
+            },
+        )
+
+    global menu_history
+    menu_history.append(artists_alphabetic_menu)
+
+
+def select_artist_category(letter):
+    artists = server.get_artists()
+    artist_category_menu = vmenu.vmenu(f"Category {letter}", screen, controller, config)
+
+    category = None
+    for index in artists["subsonic-response"]["artists"]["index"]:
+        if index["@name"] == letter:
+            category = index
+
+    for artist in category["artist"]:
+        artist_category_menu.add_entry(
+            artist["@name"], {"argument": artist["@id"], "callback": select_artist}
+        )
+
+    global menu_history
+    menu_history.append(artist_category_menu)
+
+
+def select_artist_hold(id):
+    pass
+
+
+def select_artist(id):
     pass
 
 

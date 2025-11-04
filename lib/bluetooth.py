@@ -1,4 +1,4 @@
-from logging import Logger
+from lib.logger import Logger
 import pydbus
 
 

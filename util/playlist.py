@@ -44,7 +44,6 @@ class Playlist:
             if not song.downloaded:
                 self.needs_syncing = True  # if even ONE song isnt downloaded, the playlist needs syncing.
 
-        print(self.playlist)
         self.menu = SongCollection(
             self.songs,
             self.playlist["subsonic-response"]["playlist"]["@name"],
