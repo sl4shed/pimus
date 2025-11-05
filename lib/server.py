@@ -72,6 +72,10 @@ class Server:
         response = self.endpoint("rest/getArtists")
         return self.handle_response(response)["response"]
 
+    def get_artist(self, id):
+        response = self.endpoint("rest/getArtist", {"id": id})
+        return self.handle_response(response)["response"]
+
     def download(self, id, path):
         url = f"{self.address}/rest/download{self.get_queries()}&id={id}&format=mp3"
         response = requests.get(url)

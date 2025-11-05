@@ -14,6 +14,7 @@ import mpv
 
 from lib.bluetooth import Bluetooth
 from util.album import Album
+from util.artist import Artist
 from util.playlist import Playlist
 from util.settings import Settings
 from util.song import Song
@@ -107,7 +108,13 @@ def select_artist_category(letter):
 
     for artist in category["artist"]:
         artist_category_menu.add_entry(
-            artist["@name"], {"argument": artist["@id"], "callback": select_artist}
+            artist["@name"],
+            {
+                "argument": artist["@id"],
+                "hold_argument": artist["@id"],
+                "callback": select_artist,
+                "hold_callback": select_artist_hold,
+            },
         )
 
     global menu_history
@@ -119,7 +126,10 @@ def select_artist_hold(id):
 
 
 def select_artist(id):
-    pass
+    artist = Artist(id, server, screen, controller, config, logger, player)
+
+    global menu_history
+    menu_history.append(artist)
 
 
 def search():
