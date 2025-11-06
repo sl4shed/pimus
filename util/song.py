@@ -3,17 +3,16 @@ from mpv import MPV
 from lib.config import Config
 from lib.logger import Logger
 from lib.server import Server
+from lib.services import Services
 
 
 class Song:
-    def __init__(
-        self, info, config: Config, server: Server, logger: Logger, player: MPV
-    ):
+    def __init__(self, info):
         self.info = info
-        self.server = server
-        self.config = config
-        self.logger = logger
-        self.player = player
+        self.server: Server = Services.server
+        self.config: Config = Services.config
+        self.logger: Logger = Services.logger
+        self.player: MPV = Services.player
 
         self.path = os.path.join(
             self.config.get("songs_folder"),

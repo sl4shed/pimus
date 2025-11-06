@@ -2,15 +2,16 @@
 
 from lib.config import Config
 from lib.lcd import Screen
+from lib.services import Services
 from util import utils
 
 
 class ProgressBar:
-    def __init__(self, progress, title, config: Config, screen: Screen, size=16):
+    def __init__(self, progress, title, size=16):
         self.progress = progress
         self.title = title
-        self.config = config
-        self.screen = screen
+        self.config: Config = Services.config
+        self.screen: Screen = Services.screen
         self.gauge_size_chars = 16
 
         self.title_scroll = 0  # unused if the text isnt longer than the screen

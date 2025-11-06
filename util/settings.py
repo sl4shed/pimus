@@ -5,23 +5,18 @@ from lib.lcd import Screen
 from ui.hmenu import hmenu
 from lib.bluetooth import Bluetooth
 from ui.vmenu import vmenu
-from util.timer_progressbar import TimerProgressBar
+from ui.timer_progressbar import TimerProgressBar
+from lib.services import Services
 
 
 class Settings:
-    def __init__(
-        self,
-        config: Config,
-        screen: Screen,
-        controller: Controller,
-        bluetooth: Bluetooth,
-    ):
-        self.config: Config = config
-        self.screen: Screen = screen
-        self.controller: Controller = controller
-        self.bt: Bluetooth = bluetooth
+    def __init__(self):
+        self.config: Config = Services.config
+        self.screen: Screen = Services.screen
+        self.controller: Controller = Services.controller
+        self.bt: Bluetooth = Services.bluetooth
 
-        self.menu = hmenu("Options", self.screen, self.controller, self.config)
+        self.menu = hmenu("Options")
 
         self.menu.add_entry("Bluetooth", {"callback": self.bluetooth})
         self.menu.add_entry("Wi-Fi", {"callback": self.wifi})
@@ -37,14 +32,12 @@ class Settings:
             "Discovering Bluetooth Devices...",
             15,
             self.stop_bt_discovery,
-            self.config,
-            self.screen,
         )
         self.bt.start_discovery()
 
     def stop_bt_discovery(self):
         self.bt.stop_discovery()
-        self.menu = vmenu("Bluetooth", self.screen, self.controller, self.config)
+        self.menu = vmenu("Bluetooth")
 
         self.devices = self.bt.get_devices()
         self.bt_connected = False

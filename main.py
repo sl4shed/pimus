@@ -3,6 +3,7 @@ from lib import control
 from lib import config as configClass
 from lib import server as serverClass
 from lib import logger as loggerClass
+from lib.services import Services
 from ui.progressbar import ProgressBar
 from util import charmap
 from util import utils
@@ -38,6 +39,16 @@ server = serverClass.Server(
 bluetooth = Bluetooth(logger)
 player = mpv.MPV()
 
+Services.init(
+    config=config,
+    controller=controller,
+    screen=screen,
+    logger=logger,
+    server=server,
+    bluetooth=bluetooth,
+    player=player,
+)
+
 pygame.display.flip()
 
 ## Main Loop ##
@@ -49,7 +60,7 @@ menu_history = []
 
 def albums():
     list = []
-    albums_menu = vmenu.vmenu("Albums:", screen, controller, config)
+    albums_menu = vmenu.vmenu("Albums:")
     a = server.get_albums()
     for album in a["subsonic-response"]["albumList"]["album"]:
         albums_menu.add_entry(
@@ -67,14 +78,14 @@ def albums():
 
 
 def select_album(id):
-    album = Album(id, False, server, controller, config, logger, screen, player)
+    album = Album(id, False)
 
     global menu_history
     menu_history.append(album)
 
 
 def select_album_hold(id):
-    album = Album(id, True, server, controller, config, logger, screen, player)
+    album = Album(id, True)
 
     global menu_history
     menu_history.append(album)
@@ -82,7 +93,7 @@ def select_album_hold(id):
 
 def artists():
     artists = server.get_artists()
-    artists_alphabetic_menu = vmenu.vmenu("Artists", screen, controller, config)
+    artists_alphabetic_menu = vmenu.vmenu("Artists")
 
     for index in artists["subsonic-response"]["artists"]["index"]:
         artists_alphabetic_menu.add_entry(
@@ -99,7 +110,7 @@ def artists():
 
 def select_artist_category(letter):
     artists = server.get_artists()
-    artist_category_menu = vmenu.vmenu(f"Category {letter}", screen, controller, config)
+    artist_category_menu = vmenu.vmenu(f"Category {letter}")
 
     category = None
     for index in artists["subsonic-response"]["artists"]["index"]:
@@ -126,7 +137,7 @@ def select_artist_hold(id):
 
 
 def select_artist(id):
-    artist = Artist(id, server, screen, controller, config, logger, player)
+    artist = Artist(id)
 
     global menu_history
     menu_history.append(artist)
@@ -137,14 +148,14 @@ def search():
 
 
 def options():
-    menu = Settings(config, screen, controller, bluetooth)
+    menu = Settings()
     global menu_history
     menu_history.append(menu)
 
 
 def playlists():
     list = []
-    playlists_menu = vmenu.vmenu("Playlists:", screen, controller, config)
+    playlists_menu = vmenu.vmenu("Playlists:")
     a = server.get_playlists()
     for playlist in a["subsonic-response"]["playlists"]["playlist"]:
         playlists_menu.add_entry(
@@ -162,14 +173,14 @@ def playlists():
 
 
 def select_playlist(id):
-    playlist = Playlist(id, False, server, controller, config, logger, screen, player)
+    playlist = Playlist(id, False)
 
     global menu_history
     menu_history.append(playlist)
 
 
 def select_playlist_hold(id):
-    playlist = Playlist(id, True, server, controller, config, logger, screen, player)
+    playlist = Playlist(id, True)
 
     global menu_history
     menu_history.append(playlist)
@@ -185,7 +196,7 @@ def go_back():
         menu_history.pop()
 
 
-main_menu = hmenu.hmenu("Pimus 1.0", screen, controller, config)
+main_menu = hmenu.hmenu("Pimus 1.0")
 main_menu.add_entry("Playlists", {"callback": playlists})
 main_menu.add_entry("Albums", {"callback": albums})
 main_menu.add_entry("Artists", {"callback": artists})

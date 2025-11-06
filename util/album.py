@@ -9,6 +9,7 @@ from ui.player import Player
 from ui.progressbar import ProgressBar
 from util.song import Song
 from util.song_collection import SongCollection
+from lib.services import Services
 
 
 class Album:
@@ -16,21 +17,15 @@ class Album:
         self,
         id,
         hold,
-        server: Server,
-        controller: Controller,
-        config: Config,
-        logger: Logger,
-        screen: Screen,
-        player: MPV,
     ):
         self.id = id
         self.hold = hold
-        self.server = server
-        self.controller = controller
-        self.config = config
-        self.logger = logger
-        self.screen = screen
-        self.player = player
+        self.server: Server = Services.server
+        self.controller: Controller = Services.controller
+        self.config: Config = Services.config
+        self.logger: Logger = Services.logger
+        self.screen: Screen = Services.screen
+        self.player: Player = Services.player
 
         self.album = self.server.get_album(id)
         self.needs_syncing = False
@@ -48,21 +43,13 @@ class Album:
             self.songs.append(song)
         else:
             for song_obj in self.album["subsonic-response"]["album"]["song"]:
-                song = Song(
-                    song_obj, self.config, self.server, self.logger, self.player
-                )
+                song = Song(song_obj)
                 self.songs.append(song)
 
         self.menu = SongCollection(
             self.songs,
             self.album["subsonic-response"]["album"]["@name"],
             self.hold,
-            self.server,
-            self.controller,
-            self.config,
-            self.logger,
-            self.screen,
-            self.player,
         )
 
     def update(self):

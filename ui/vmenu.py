@@ -2,14 +2,15 @@ from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
 from util import utils
+from lib.services import Services
 
 
 class vmenu:
-    def __init__(self, title, screen: Screen, controller: Controller, config: Config):
+    def __init__(self, title):
         self.title = title
-        self.screen = screen
-        self.controller = controller
-        self.config = config
+        self.screen: Screen = Services.screen
+        self.controller: Controller = Services.controller
+        self.config: Config = Services.config
         self.entries = []
 
         self.entry_index = 0

@@ -5,6 +5,7 @@ from lib.control import Controller
 from lib.lcd import Screen
 from lib.logger import Logger
 from lib.server import Server
+from lib.services import Services
 from ui.hmenu import hmenu
 from ui.player import Player
 from ui.progressbar import ProgressBar
@@ -13,27 +14,16 @@ from util.song import Song
 
 
 class SongCollection:
-    def __init__(
-        self,
-        songs,
-        name,
-        hold,
-        server: Server,
-        controller: Controller,
-        config: Config,
-        logger: Logger,
-        screen: Screen,
-        player: MPV,
-    ):
+    def __init__(self, songs, name, hold):
         self.name = name
         self.songs = songs
         self.hold = hold
-        self.server = server
-        self.controller = controller
-        self.config = config
-        self.logger = logger
-        self.screen = screen
-        self.player = player
+        self.server: Server = Services.server
+        self.controller: Controller = Services.controller
+        self.config: Config = Services.config
+        self.logger: Logger = Services.logger
+        self.screen: Screen = Services.screen
+        self.player: Player = Services.player
 
         self.needs_syncing = False
 
@@ -48,24 +38,14 @@ class SongCollection:
 
     def make_menu(self):
         if self.hold:
-            self.menu = vmenu(
-                self.name,
-                self.screen,
-                self.controller,
-                self.config,
-            )
+            self.menu = vmenu(self.name)
 
             for i, song in enumerate(self.songs):
                 self.menu.add_entry(
                     song.title, {"argument": i, "callback": self.select_song}
                 )
         else:
-            self.menu = hmenu(
-                self.name,
-                self.screen,
-                self.controller,
-                self.config,
-            )
+            self.menu = hmenu(self.name)
 
             self.menu.add_entry("Play", {"argument": None, "callback": self.play})
 
@@ -80,16 +60,14 @@ class SongCollection:
         self.make_menu()
 
     def play(self):
-        self.menu = Player(self.songs, self.config, self.screen, self.controller)
+        self.menu = Player(self.songs)
 
     def shuffle(self):
         pass
 
     def sync(self, force=False):
         self.song_index = 0
-        self.menu = ProgressBar(
-            progress=0, title="Syncing...", config=self.config, screen=self.screen
-        )
+        self.menu = ProgressBar(progress=0, title="Syncing...")
         self.menu.set_progress(0)
         self.needs_syncing = True
         self.force_sync = force

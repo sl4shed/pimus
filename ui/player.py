@@ -1,16 +1,17 @@
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
+from lib.services import Services
 from ui.progressbar import ProgressBar
 from util import utils
 
 
 class Player:
-    def __init__(self, songs, config: Config, screen: Screen, controller: Controller):
+    def __init__(self, songs):
         self.songs = songs
-        self.config = config
-        self.screen = screen
-        self.controller = controller
+        self.config: Config = Services.config
+        self.screen: Screen = Services.screen
+        self.controller: Controller = Services.controller
 
         self.playing = False
         self.last_song_index = -1
@@ -19,7 +20,7 @@ class Player:
         self.song_start_time = utils.millis()
         self.pause_start_time = None
         self.total_pause_time = 0
-        self.menu = ProgressBar(0, current_song.title, self.config, self.screen)
+        self.menu = ProgressBar(0, current_song.title)
 
     def update(self):
         self.menu.update()
