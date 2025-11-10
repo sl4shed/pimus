@@ -1,3 +1,4 @@
+import json
 import requests
 import hashlib
 import uuid
@@ -17,6 +18,7 @@ class Server:
         self.app_name = app_name
         self.api_version = "1.16.1"
         self.logger = logger
+        self.ping()
 
     def get_queries(self):
         salt = str(uuid.uuid4())[:6]
@@ -24,14 +26,40 @@ class Server:
 
         return f"?u={self.username}&t={token}&s={salt}&c={self.app_name}&v={self.api_version}"
 
+    def cache_endpoint(self, endpoint, response, queries={}):
+        if endpoint == "rest/ping.view":
+            return
+        with open("./cache/responses.json", "r") as file:
+            responses = json.loads(file.read())
+            if queries != {}:
+                responses[f"{endpoint}+{json.dumps(queries)}"] = response
+            else:
+                responses[endpoint] = response
+        with open("./cache/responses.json", "w") as file:
+            file.write(json.dumps(responses))
+
+    def get_cached_endpoint(self, endpoint, queries={}):
+        with open("./cache/responses.json", "r") as file:
+            responses = json.loads(file.read())
+            if queries != {}:
+                return responses[f"{endpoint}+{json.dumps(queries)}"]
+            else:
+                return responses[endpoint]
+
     def endpoint(self, endpoint, queries={}):
+        if endpoint != "rest/ping.view" and not self.online:
+            return self.get_cached_endpoint(endpoint, queries)
+
         q = ""
         for key, value in queries.items():
             q += f"&{key}={value}"
 
         url = f"{self.address}/{endpoint}{self.get_queries()}{q}"
         request = requests.get(url)
-        return xmltodict.parse(request.content)
+        response = xmltodict.parse(request.content)
+        self.cache_endpoint(endpoint, response, queries)
+
+        return response
 
     def handle_response(self, response):
         if response["subsonic-response"]["@status"] == "ok":

@@ -11,6 +11,7 @@ from ui.player import Player
 from ui.progressbar import ProgressBar
 from ui.vmenu import vmenu
 from util.song import Song
+import random
 
 
 class SongCollection:
@@ -63,7 +64,8 @@ class SongCollection:
         self.menu = Player(self.songs)
 
     def shuffle(self):
-        pass
+        random.shuffle(self.songs)
+        self.menu = Player(self.songs)
 
     def sync(self, force=False):
         self.song_index = 0

@@ -21,12 +21,16 @@ class Player:
         self.pause_start_time = None
         self.total_pause_time = 0
         self.menu = ProgressBar(0, current_song.title)
+        self.init = True
 
     def update(self):
         self.menu.update()
 
         # song update
         current_song = self.songs[self.song_index]
+        if self.init:
+            self.playing = current_song.cycle_pause()
+            self.init = False
 
         # Calculate actual playback time, excluding paused time
         current_time = utils.millis()
