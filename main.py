@@ -20,206 +20,186 @@ from util.playlist import Playlist
 from util.settings import Settings
 from util.song import Song
 
-## Initialization ##
-pygame.init()
-pygame.display.set_caption("Pimus Emulator")
-surface = pygame.display.set_mode((720, 130))
 
-config = configClass.Config("./config.json")
-controller = control.Controller()
-screen = lcd.Screen(2, 16, charmap.charmap, 0, 0, (102, 168, 0), surface)
-logger = loggerClass.Logger("./logs/pimus.log")
-server = serverClass.Server(
-    config.get("server.address"),
-    config.get("server.username"),
-    config.get("server.password"),
-    "PiMus 1.0",
-    logger,
-)
-bluetooth = Bluetooth(logger)
-player = mpv.MPV()
+class App:
+    def __init__(self):
+        pygame.init()
+        pygame.display.set_caption("Pimus Emulator")
+        self.surface = pygame.display.set_mode((720, 130))
+        pygame.display.flip()
 
-Services.init(
-    config=config,
-    controller=controller,
-    screen=screen,
-    logger=logger,
-    server=server,
-    bluetooth=bluetooth,
-    player=player,
-)
+        self.config = configClass.Config("./config.json")
+        self.controller = control.Controller()
+        self.screen = lcd.Screen(
+            2, 16, charmap.charmap, 0, 0, (102, 168, 0), self.surface
+        )
+        self.logger = loggerClass.Logger("./logs/pimus.log")
+        self.server = serverClass.Server(
+            self.config.get("server.address"),
+            self.config.get("server.username"),
+            self.config.get("server.password"),
+            "PiMus 1.0",
+            self.logger,
+        )
+        self.bluetooth = Bluetooth(self.logger)
+        self.player = mpv.MPV()
 
-pygame.display.flip()
-
-## Main Loop ##
-running = True
-scroll = 0
-global menu_history
-menu_history = []
-
-
-def albums():
-    list = []
-    albums_menu = vmenu.vmenu("Albums:")
-    a = server.get_albums()
-    for album in a["subsonic-response"]["albumList"]["album"]:
-        albums_menu.add_entry(
-            album["@name"],
-            {
-                "argument": album["@id"],
-                "hold_argument": album["@id"],
-                "hold_callback": select_album_hold,
-                "callback": select_album,
-            },
+        Services.init(
+            config=self.config,
+            controller=self.controller,
+            screen=self.screen,
+            logger=self.logger,
+            server=self.server,
+            bluetooth=self.bluetooth,
+            player=self.player,
+            app=self,
         )
 
-    global menu_history
-    menu_history.append(albums_menu)
+        self.running = True
+        self.scroll = 0
+        self.menu_history = []
+
+        # main menu
+        main_menu = hmenu.hmenu("Pimus 1.0")
+        main_menu.add_entry("Playlists", {"callback": self.playlists})
+        main_menu.add_entry("Albums", {"callback": self.albums})
+        main_menu.add_entry("Artists", {"callback": self.artists})
+        main_menu.add_entry("Search", {"callback": self.search})
+        main_menu.add_entry("Options", {"callback": self.options})
+
+        # set the currently active menu
+        self.menu_history.append(main_menu)
+
+        while self.running:
+            self.update()
+
+    def update(self):
+        # controller update code
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                self.running = False
+        self.controller.update(events)
+
+        if self.controller.is_repeating("left"):
+            self.go_back()
+
+        self.screen.clear()
+        current_menu = self.menu_history[len(self.menu_history) - 1]
+        current_menu.update()
+
+        pygame.display.update()
+        self.screen.draw()
+
+    def go_back(self):
+        if len(self.menu_history) > 1:
+            self.menu_history.pop()
+
+    def albums(self):
+        list = []
+        albums_menu = vmenu.vmenu("Albums:")
+        a = self.server.get_albums()
+        for album in a["subsonic-response"]["albumList"]["album"]:
+            albums_menu.add_entry(
+                album["@name"],
+                {
+                    "argument": album["@id"],
+                    "hold_argument": album["@id"],
+                    "hold_callback": self.select_album_hold,
+                    "callback": self.select_album,
+                },
+            )
+
+        self.menu_history.append(albums_menu)
+
+    def select_album(self, id):
+        album = Album(id, False)
+        self.menu_history.append(album)
+
+    def select_album_hold(self, id):
+        album = Album(id, True)
+        self.menu_history.append(album)
+
+    def artists(self):
+        artists = self.server.get_artists()
+        artists_alphabetic_menu = vmenu.vmenu("Artists")
+
+        for index in artists["subsonic-response"]["artists"]["index"]:
+            artists_alphabetic_menu.add_entry(
+                index["@name"],
+                {
+                    "argument": index["@name"],
+                    "callback": self.select_artist_category,
+                },
+            )
+
+        self.menu_history.append(artists_alphabetic_menu)
+
+    def select_artist_category(self, letter):
+        artists = self.server.get_artists()
+        artist_category_menu = vmenu.vmenu(f"Category {letter}")
+
+        category = None
+        for index in artists["subsonic-response"]["artists"]["index"]:
+            if index["@name"] == letter:
+                category = index
+
+        for artist in category["artist"]:
+            artist_category_menu.add_entry(
+                artist["@name"],
+                {
+                    "argument": artist["@id"],
+                    "hold_argument": artist["@id"],
+                    "callback": self.select_artist,
+                    "hold_callback": self.select_artist_hold,
+                },
+            )
+
+        self.menu_history.append(artist_category_menu)
+
+    def select_artist_hold(self, id):
+        pass
+
+    def select_artist(self, id):
+        artist = Artist(id)
+
+        self.menu_history.append(artist)
+
+    def search(self):
+        pass
+
+    def options(self):
+        menu = Settings()
+        self.menu_history.append(menu)
+
+    def playlists(self):
+        list = []
+        playlists_menu = vmenu.vmenu("Playlists:")
+        a = self.server.get_playlists()
+        for playlist in a["subsonic-response"]["playlists"]["playlist"]:
+            playlists_menu.add_entry(
+                playlist["@name"],
+                {
+                    "argument": playlist["@id"],
+                    "hold_argument": playlist["@id"],
+                    "hold_callback": self.select_playlist_hold,
+                    "callback": self.select_playlist,
+                },
+            )
+
+        self.menu_history.append(playlists_menu)
+
+    def select_playlist(self, id):
+        playlist = Playlist(id, False)
+        self.menu_history.append(playlist)
+
+    def select_playlist_hold(self, id):
+        playlist = Playlist(id, True)
+        self.menu_history.append(playlist)
+
+    def select_song(self, song):
+        pass
 
 
-def select_album(id):
-    album = Album(id, False)
-
-    global menu_history
-    menu_history.append(album)
-
-
-def select_album_hold(id):
-    album = Album(id, True)
-
-    global menu_history
-    menu_history.append(album)
-
-
-def artists():
-    artists = server.get_artists()
-    artists_alphabetic_menu = vmenu.vmenu("Artists")
-
-    for index in artists["subsonic-response"]["artists"]["index"]:
-        artists_alphabetic_menu.add_entry(
-            index["@name"],
-            {
-                "argument": index["@name"],
-                "callback": select_artist_category,
-            },
-        )
-
-    global menu_history
-    menu_history.append(artists_alphabetic_menu)
-
-
-def select_artist_category(letter):
-    artists = server.get_artists()
-    artist_category_menu = vmenu.vmenu(f"Category {letter}")
-
-    category = None
-    for index in artists["subsonic-response"]["artists"]["index"]:
-        if index["@name"] == letter:
-            category = index
-
-    for artist in category["artist"]:
-        artist_category_menu.add_entry(
-            artist["@name"],
-            {
-                "argument": artist["@id"],
-                "hold_argument": artist["@id"],
-                "callback": select_artist,
-                "hold_callback": select_artist_hold,
-            },
-        )
-
-    global menu_history
-    menu_history.append(artist_category_menu)
-
-
-def select_artist_hold(id):
-    pass
-
-
-def select_artist(id):
-    artist = Artist(id)
-
-    global menu_history
-    menu_history.append(artist)
-
-
-def search():
-    pass
-
-
-def options():
-    menu = Settings()
-    global menu_history
-    menu_history.append(menu)
-
-
-def playlists():
-    list = []
-    playlists_menu = vmenu.vmenu("Playlists:")
-    a = server.get_playlists()
-    for playlist in a["subsonic-response"]["playlists"]["playlist"]:
-        playlists_menu.add_entry(
-            playlist["@name"],
-            {
-                "argument": playlist["@id"],
-                "hold_argument": playlist["@id"],
-                "hold_callback": select_playlist_hold,
-                "callback": select_playlist,
-            },
-        )
-
-    global menu_history
-    menu_history.append(playlists_menu)
-
-
-def select_playlist(id):
-    playlist = Playlist(id, False)
-
-    global menu_history
-    menu_history.append(playlist)
-
-
-def select_playlist_hold(id):
-    playlist = Playlist(id, True)
-
-    global menu_history
-    menu_history.append(playlist)
-
-
-def select_song(song):
-    pass
-
-
-def go_back():
-    global menu_history
-    if len(menu_history) > 1:
-        menu_history.pop()
-
-
-main_menu = hmenu.hmenu("Pimus 1.0")
-main_menu.add_entry("Playlists", {"callback": playlists})
-main_menu.add_entry("Albums", {"callback": albums})
-main_menu.add_entry("Artists", {"callback": artists})
-main_menu.add_entry("Search", {"callback": search})
-main_menu.add_entry("Options", {"callback": options})
-
-# set the currently active menu
-menu_history.append(main_menu)
-
-while running:
-    # controller update code
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
-    controller.update(events)
-
-    if controller.is_repeating("left"):
-        go_back()
-
-    screen.clear()
-    current_menu = menu_history[len(menu_history) - 1]
-    current_menu.update()
-
-    pygame.display.update()
-    screen.draw()
+if __name__ == "__main__":
+    app = App()

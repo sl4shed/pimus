@@ -46,7 +46,8 @@ class Artist:
         print("artist songs")
 
     def artist_albums(self):
-        self.menu = vmenu("Artist Albums")
+        menu = vmenu("Artist Albums")
+        Services.app.menu_history.append(menu)
         for album in self.albums:
             self.menu.add_entry(
                 album["@name"],
@@ -54,7 +55,7 @@ class Artist:
             )
 
     def select_album(self, id):
-        self.menu = Album(id, False)
+        Services.app.menu_history.appendp(Album(id, False))
 
     def sync(self):
         print("sync")

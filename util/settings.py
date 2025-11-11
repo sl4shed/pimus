@@ -37,6 +37,7 @@ class Settings:
 
     def stop_bt_discovery(self):
         self.bt.stop_discovery()
+        # todo:::::: make the bluetooth a separate menu along with the timer in a separate class from settings :)
         self.menu = vmenu("Bluetooth")
 
         self.devices = self.bt.get_devices()
