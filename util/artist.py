@@ -1,8 +1,9 @@
 from mpv import MPV
-from lib.logger import Logger
+
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
+from lib.logger import Logger
 from lib.server import Server
 from lib.services import Services
 from ui.hmenu import hmenu
@@ -47,7 +48,7 @@ class Artist:
 
     def artist_albums(self):
         menu = vmenu("Artist Albums")
-        Services.app.menu_history.append(menu)
+        Services.app.menu_manager.add(menu)
         for album in self.albums:
             self.menu.add_entry(
                 album["@name"],
@@ -55,7 +56,7 @@ class Artist:
             )
 
     def select_album(self, id):
-        Services.app.menu_history.appendp(Album(id, False))
+        Services.app.menu_manager.add(Album(id, False))
 
     def sync(self):
         print("sync")

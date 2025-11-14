@@ -1,21 +1,20 @@
-from lib import lcd
-from lib import control
-from lib import config as configClass
-from lib import server as serverClass
-from lib import logger as loggerClass
-from lib.services import Services
-from ui.progressbar import ProgressBar
-from util import charmap
-from util import utils
-from ui import hmenu
-from ui import vmenu
 import time
-import pygame
-import mpv
 
+import mpv
+import pygame
+
+from lib import config as configClass
+from lib import control, lcd
+from lib import logger as loggerClass
+from lib import server as serverClass
 from lib.bluetooth import Bluetooth
+from lib.services import Services
+from ui import hmenu, vmenu
+from ui.progressbar import ProgressBar
+from util import charmap, utils
 from util.album import Album
 from util.artist import Artist
+from util.menu_manager import MenuManager
 from util.playlist import Playlist
 from util.settings import Settings
 from util.song import Song
@@ -57,7 +56,7 @@ class App:
 
         self.running = True
         self.scroll = 0
-        self.menu_history = []
+        self.menu_manager = MenuManager()
 
         # main menu
         main_menu = hmenu.hmenu("Pimus 1.0")
@@ -68,7 +67,7 @@ class App:
         main_menu.add_entry("Options", {"callback": self.options})
 
         # set the currently active menu
-        self.menu_history.append(main_menu)
+        self.menu_manager.add(main_menu, {"backable": False})
 
         while self.running:
             self.update()
@@ -82,18 +81,13 @@ class App:
         self.controller.update(events)
 
         if self.controller.is_repeating("left"):
-            self.go_back()
+            self.menu_manager.back()
 
         self.screen.clear()
-        current_menu = self.menu_history[len(self.menu_history) - 1]
-        current_menu.update()
+        self.menu_manager.update()
 
         pygame.display.update()
         self.screen.draw()
-
-    def go_back(self):
-        if len(self.menu_history) > 1:
-            self.menu_history.pop()
 
     def albums(self):
         list = []
@@ -110,15 +104,15 @@ class App:
                 },
             )
 
-        self.menu_history.append(albums_menu)
+        self.menu_manager.add(albums_menu)
 
     def select_album(self, id):
         album = Album(id, False)
-        self.menu_history.append(album)
+        self.menu_manager.add(album)
 
     def select_album_hold(self, id):
         album = Album(id, True)
-        self.menu_history.append(album)
+        self.menu_manager.add(album)
 
     def artists(self):
         artists = self.server.get_artists()
@@ -133,7 +127,7 @@ class App:
                 },
             )
 
-        self.menu_history.append(artists_alphabetic_menu)
+        self.menu_manager.add(artists_alphabetic_menu)
 
     def select_artist_category(self, letter):
         artists = self.server.get_artists()
@@ -155,7 +149,7 @@ class App:
                 },
             )
 
-        self.menu_history.append(artist_category_menu)
+        self.menu_manager.add(artist_category_menu)
 
     def select_artist_hold(self, id):
         pass
@@ -163,14 +157,14 @@ class App:
     def select_artist(self, id):
         artist = Artist(id)
 
-        self.menu_history.append(artist)
+        self.menu_manager.add(artist)
 
     def search(self):
         pass
 
     def options(self):
         menu = Settings()
-        self.menu_history.append(menu)
+        self.menu_manager.add(menu)
 
     def playlists(self):
         list = []
@@ -187,15 +181,15 @@ class App:
                 },
             )
 
-        self.menu_history.append(playlists_menu)
+        self.menu_manager.add(playlists_menu)
 
     def select_playlist(self, id):
         playlist = Playlist(id, False)
-        self.menu_history.append(playlist)
+        self.menu_manager.add(playlist)
 
     def select_playlist_hold(self, id):
         playlist = Playlist(id, True)
-        self.menu_history.append(playlist)
+        self.menu_manager.add(playlist)
 
     def select_song(self, song):
         pass

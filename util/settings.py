@@ -1,12 +1,13 @@
 import pygame
+
+from lib.bluetooth import Bluetooth
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
-from ui.hmenu import hmenu
-from lib.bluetooth import Bluetooth
-from ui.vmenu import vmenu
-from ui.timer_progressbar import TimerProgressBar
 from lib.services import Services
+from ui.hmenu import hmenu
+from ui.timer_progressbar import TimerProgressBar
+from ui.vmenu import vmenu
 
 
 class Settings:
@@ -27,16 +28,20 @@ class Settings:
         # timerprogressbar has a callback where i stop bt discovery
         # matter of fact its right beneath this function
         # you dumbass
-        self.menu = TimerProgressBar(
-            self.config.get("bluetooth_discovery_time"),
-            "Discovering Bluetooth Devices...",
-            15,
-            self.stop_bt_discovery,
-        )
         self.bt.start_discovery()
+        Services.app.menu_manager.add(
+            TimerProgressBar(
+                self.config.get("bluetooth_discovery_time"),
+                "Discovering Bluetooth Devices...",
+                15,
+                self.stop_bt_discovery,
+            ),
+            {"backable": False},  # forces you to wait 10 seconds lmao
+        )
 
     def stop_bt_discovery(self):
         self.bt.stop_discovery()
+        Services.app.menu_manager.back(True)  # force ts to go bakc
         # todo:::::: make the bluetooth a separate menu along with the timer in a separate class from settings :)
         self.menu = vmenu("Bluetooth")
 
