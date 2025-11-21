@@ -4,7 +4,7 @@ import mpv
 import pygame
 
 from lib import config as configClass
-from lib import control, lcd
+from lib import control, pilcd
 from lib import logger as loggerClass
 from lib import server as serverClass
 from lib.bluetooth import Bluetooth
