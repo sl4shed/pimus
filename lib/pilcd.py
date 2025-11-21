@@ -3,100 +3,89 @@ import copy
 
 
 class Screen:
-    def __init__(
-        self, rows, columns, charmap, x=None, y=None, color=None, surface=None
-    ):  # boilerplate arguments to be able to dropin replace this from the other library
+    def __init__(self, rows, columns, charmap, *_, **__):
         self.lcd = CharLCD("PCF8574", 0x27, auto_linebreaks=False)
         self.columns = columns
         self.rows = rows
         self.charmap = charmap
 
-        # i need to keep a basic state of the screen
-        # to prevent redrawing shit every frame
-        self.state = []
+        # pixel-map state
+        self.state = [[[] for _ in range(columns)] for _ in range(rows)]
+
+        # last-known character buffer (NOT pixel maps)
+        self.charbuf = [[" " for _ in range(columns)] for _ in range(rows)]
+
         self.custom_characters = [None] * 8
         self.cursor_x = 0
         self.cursor_y = 0
-        self.false_write = False
 
-        for r in range(0, rows):
-            arr = []
-            for c in range(0, columns):
-                arr.append([])
+        self.dirty = True  # forces initial clear
 
-            self.state.append(arr)
-
-        self.clear()
+        self.clear(force=True)
 
     def create_character(self, index, character):
-        if index > 7 or index < 0:
-            return  # not allowed to have more than 8 chars
+        if 0 <= index <= 7:
+            # convert 0b01010 → [0,1,0,1,0]
+            if isinstance(character, (list, tuple)) and all(
+                isinstance(r, int) for r in character
+            ):
+                converted = []
+                for row in character:
+                    bits = bin(row)[2:].rjust(5, "0")
+                    converted.append([int(b) for b in bits])
+                character = converted
 
-        if isinstance(character, (list, tuple)) and all(
-            isinstance(row, int) for row in character
-        ):
-            # convert rows like 0b01010 -> [0,1,0,1,0]
-            converted = []
-            for row in character:
-                bits = bin(row)[2:].rjust(5, "0")  # string like "01010"
-                converted.append([int(b) for b in bits])
-            character = converted
-
-        self.custom_characters[index] = character
-
-        # actual code
-        self.lcd.create_char(index, character)
+            self.custom_characters[index] = character
+            self.lcd.create_char(index, character)
 
     def set_cursor(self, x, y):
-        if x > self.columns or y > self.rows or x < 0 or y < 0:
-            return
-        self.cursor_x = x
-        self.cursor_y = y
-
-        self.lcd.cursor_pos = (y, x)  # idk
+        if 0 <= x < self.columns and 0 <= y < self.rows:
+            self.cursor_x = x
+            self.cursor_y = y
+            self.lcd.cursor_pos = (y, x)
 
     def write_string(self, string):
         new_state = copy.deepcopy(self.state)
+        new_charbuf = copy.deepcopy(self.charbuf)
 
-        arr = list(string)
-        for i, char in enumerate(arr):
-            if self.cursor_x + i > self.columns:
-                return
+        for i, char in enumerate(string):
+            x = self.cursor_x + i
+            y = self.cursor_y
 
-            if 0 <= ord(char) <= 7:  # characters such as \x00, \x01, etc...
-                new_state[self.cursor_y][self.cursor_x + i] = self.custom_characters[
-                    ord(char)
-                ]
-            elif ord(char) == 255:
-                new_state[self.cursor_y][self.cursor_x + i] = [
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1],
-                ]
+            if x >= self.columns:
+                break
+
+            code = ord(char)
+
+            # Update char buffer (for detecting menu changes)
+            new_charbuf[y][x] = char
+
+            # Determine pixel map
+            if 0 <= code <= 7:
+                # custom char
+                new_state[y][x] = copy.deepcopy(self.custom_characters[code])
+            elif code == 255:
+                new_state[y][x] = [[1] * 5 for _ in range(8)]
             else:
-                if not self.charmap.get(char):
-                    new_state[self.cursor_y][self.cursor_x + i] = self.charmap.get(" ")
-                else:
-                    new_state[self.cursor_y][self.cursor_x + i] = self.charmap.get(char)
+                mapped = self.charmap.get(char, self.charmap.get(" "))
+                new_state[y][x] = copy.deepcopy(mapped)
 
-        if new_state != self.state:
-            print("different")
-            self.false_write = False
-            self.state = copy.deepcopy(new_state)
-            self.lcd.clear()
-            self.lcd.cursor = (self.cursor_y, self.cursor_x)
+        # Detect pixel-level or character-level changes
+        changed = new_state != self.state
+
+        if changed:
+            # If the *text* changed (menu switch, etc) → full clear
+            if new_charbuf != self.charbuf:
+                self.clear(force=True)
+
+            self.state = new_state
+            self.charbuf = new_charbuf
             self.lcd.write_string(string)
-        else:
-            print("same same")
-            self.false_write = True
 
-    def clear(self):
-        pass
+    def clear(self, force=False):
+        if force or self.dirty:
+            self.lcd.clear()
+        self.dirty = False
 
     def draw(self):
         pass
