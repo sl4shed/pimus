@@ -63,11 +63,11 @@ class Screen:
                 return
 
             if 0 <= ord(char) <= 7:  # characters such as \x00, \x01, etc...
-                self.state[self.cursor_y][self.cursor_x + i] = self.custom_characters[
+                new_state[self.cursor_y][self.cursor_x + i] = self.custom_characters[
                     ord(char)
                 ]
             elif ord(char) == 255:
-                self.state[self.cursor_y][self.cursor_x + i] = [
+                new_state[self.cursor_y][self.cursor_x + i] = [
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1],
@@ -79,13 +79,12 @@ class Screen:
                 ]
             else:
                 if not self.charmap.get(char):
-                    self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(" ")
+                    new_state[self.cursor_y][self.cursor_x + i] = self.charmap.get(" ")
                 else:
-                    self.state[self.cursor_y][self.cursor_x + i] = self.charmap.get(
-                        char
-                    )
+                    new_state[self.cursor_y][self.cursor_x + i] = self.charmap.get(char)
 
         if new_state != self.state:
+            self.state = new_state
             self.lcd.write_string(string)
 
     def clear(self):
