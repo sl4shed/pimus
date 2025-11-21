@@ -83,11 +83,17 @@ class App:
         if self.controller.is_repeating("left"):
             self.menu_manager.back()
 
-        self.screen.clear()
+        # only let emulator clear the pygame surface
+        if hasattr(self.screen, "surface"):  # emulator
+            self.screen.clear()
+
         self.menu_manager.update()
 
         pygame.display.update()
-        self.screen.draw()
+
+        # real LCD doesn't draw() anything
+        if hasattr(self.screen, "draw"):
+            self.screen.draw()
 
     def albums(self):
         list = []
