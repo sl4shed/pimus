@@ -95,9 +95,10 @@ class Screen:
             self.false_write = True
 
     def clear(self):
-        if not self.false_write:
-            print("fuck clear ")
-            self.lcd.clear()
+        pass
+        # if not self.false_write:
+        #     print("fuck clear ")
+        #     self.lcd.clear()
 
     def draw(self):
         pass
