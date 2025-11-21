@@ -96,6 +96,7 @@ class Screen:
 
     def clear(self):
         if not self.false_write:
+            print("fuck clear ")
             self.lcd.clear()
 
     def draw(self):
