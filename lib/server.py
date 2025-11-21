@@ -6,7 +6,6 @@ import xmltodict
 from os import makedirs
 import os.path
 from pathlib import Path
-
 from lib.logger import Logger
 
 
