@@ -89,6 +89,7 @@ class Screen:
             print("different")
             self.false_write = False
             self.state = copy.deepcopy(new_state)
+            self.lcd.clear()
             self.lcd.write_string(string)
         else:
             print("same same")
