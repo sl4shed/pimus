@@ -1,4 +1,5 @@
 from RPLCD.i2c import CharLCD
+import copy
 
 
 class Screen:
@@ -54,7 +55,7 @@ class Screen:
         self.lcd.cursor_pos = (y, x)  # idk
 
     def write_string(self, string):
-        new_state = [row[:] for row in self.state]
+        new_state = copy.deepcopy(self.state)
 
         arr = list(string)
         for i, char in enumerate(arr):
@@ -84,7 +85,7 @@ class Screen:
 
         if new_state != self.state:
             print("different")
-            self.state = new_state
+            self.state = copy.deepcopy(new_state)
             self.lcd.write_string(string)
         else:
             print(new_state == self.state)
