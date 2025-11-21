@@ -57,7 +57,6 @@ class Screen:
         new_state = self.state
 
         arr = list(string)
-
         for i, char in enumerate(arr):
             if self.cursor_x + i > self.columns:
                 return
@@ -84,8 +83,11 @@ class Screen:
                     new_state[self.cursor_y][self.cursor_x + i] = self.charmap.get(char)
 
         if new_state != self.state:
+            print("different")
             self.state = new_state
             self.lcd.write_string(string)
+        else:
+            print(new_state == self.state)
 
     def clear(self):
         self.lcd.clear()
