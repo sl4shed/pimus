@@ -17,6 +17,7 @@ class Screen:
         self.custom_characters = [None] * 8
         self.cursor_x = 0
         self.cursor_y = 0
+        self.false_write = False
 
         for r in range(0, rows):
             arr = []
@@ -86,13 +87,16 @@ class Screen:
 
         if new_state != self.state:
             print("different")
+            self.false_write = False
             self.state = copy.deepcopy(new_state)
             self.lcd.write_string(string)
         else:
-            print(new_state == self.state)
+            print("same same")
+            self.false_write = True
 
     def clear(self):
-        self.lcd.clear()
+        if not self.false_write:
+            self.lcd.clear()
 
     def draw(self):
         pass
