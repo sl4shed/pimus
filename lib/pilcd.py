@@ -54,7 +54,7 @@ class Screen:
         self.lcd.cursor_pos = (y, x)  # idk
 
     def write_string(self, string):
-        new_state = self.state
+        new_state = [row[:] for row in self.state]
 
         arr = list(string)
         for i, char in enumerate(arr):
