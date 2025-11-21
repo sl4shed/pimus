@@ -17,6 +17,13 @@ class Screen:
         self.cursor_x = 0
         self.cursor_y = 0
 
+        for r in range(0, rows):
+            arr = []
+            for c in range(0, columns):
+                arr.append([])
+
+            self.state.append(arr)
+
         self.clear()
 
     def create_character(self, index, character):
