@@ -25,7 +25,8 @@ class Screen:
 
             self.state.append(arr)
 
-        self.clear()
+        self.lcd.clear()
+        self.lcd.write_string("pepe")
 
     def create_character(self, index, character):
         if index > 7 or index < 0:
