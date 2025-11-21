@@ -26,8 +26,7 @@ class Screen:
 
             self.state.append(arr)
 
-        self.lcd.clear()
-        self.lcd.write_string("pepe")
+        self.clear()
 
     def create_character(self, index, character):
         if index > 7 or index < 0:
@@ -89,17 +88,15 @@ class Screen:
             print("different")
             self.false_write = False
             self.state = copy.deepcopy(new_state)
-            self.lcd.clear()
             self.lcd.write_string(string)
         else:
             print("same same")
             self.false_write = True
 
     def clear(self):
-        pass
-        # if not self.false_write:
-        #     print("fuck clear ")
-        #     self.lcd.clear()
+        if not self.false_write:
+            print("fuck clear ")
+            self.lcd.clear()
 
     def draw(self):
         pass
