@@ -85,6 +85,7 @@ class Screen:
     def clear(self, force=False):
         if force or self.dirty:
             self.lcd.clear()
+            self.lcd.cursor_pos = (self.cursor_y, self.cursor_x)
         self.dirty = False
 
     def draw(self):
