@@ -4,7 +4,7 @@ import mpv
 import pygame
 
 from lib import config as configClass
-from lib import control, pilcd as lcd
+from lib import control, lcd as lcd
 from lib import logger as loggerClass
 from lib import server as serverClass
 from lib.bluetooth import Bluetooth
@@ -68,6 +68,7 @@ class App:
 
         # set the currently active menu
         self.menu_manager.add(main_menu, {"backable": False})
+        main_menu.draw()
 
         while self.running:
             self.update()
@@ -83,7 +84,7 @@ class App:
         if self.controller.is_repeating("left"):
             self.menu_manager.back()
 
-        self.screen.clear()
+        # self.screen.clear()
         self.menu_manager.update()
         pygame.display.update()
         self.screen.draw()
@@ -181,6 +182,7 @@ class App:
             )
 
         self.menu_manager.add(playlists_menu)
+        playlists_menu.draw()
 
     def select_playlist(self, id):
         playlist = Playlist(id, False)

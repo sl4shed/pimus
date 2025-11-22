@@ -41,12 +41,14 @@ class hmenu:
             self.controller.just_pressed("right")
             and self.entry_index < len(self.entries) - 1
         ):
+            self.screen.clear()
             self.entry_index += 1
+            self.draw()
 
         if self.controller.just_pressed("left") and self.entry_index > 0:
+            self.screen.clear()
             self.entry_index -= 1
-
-        self.draw()
+            self.draw()
 
     def draw(self):
         if len(self.title) > self.screen.columns:

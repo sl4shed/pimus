@@ -54,11 +54,36 @@ class vmenu:
     def add_entry(self, text, options):
         self.entries.append({"text": text, "options": options})
 
+    def smart_clear(self):
+        top_index = self.entry_index
+        bottom_index = top_index + 1
+
+        # top entry
+        if top_index < len(self.entries):
+            if self.smart_scroll_check(self.entries[top_index]):
+                self.screen.set_cursor(1, 0)
+                self.screen.write_string("              ")  # 14 spaces
+                self.draw()
+
+        # bottom entry
+        if bottom_index < len(self.entries):
+            if self.smart_scroll_check(self.entries[bottom_index]):
+                self.screen.set_cursor(1, 1)
+                self.screen.write_string("              ")  # 14 spaces
+                self.draw()
+
+    def smart_scroll_check(self, entry):
+        if len(entry["text"]) > self.screen.columns - 1:
+            return True
+        else:
+            return False
+
     def update(self):
         # title update
         if utils.millis() - self.last_title_scroll > self.scroll_interval:
             self.title_scroll += 1
             self.last_title_scroll = utils.millis()
+            self.smart_clear()
 
         if not hasattr(self, "creation_time"):
             self.creation_time = utils.millis()
@@ -76,18 +101,27 @@ class vmenu:
         if self.controller.just_pressed("down"):
             # if cursor is on top row and theres another entry below just move it down
             if self.cursor == 0 and self.entry_index + 1 < len(self.entries):
+                self.screen.set_cursor(0, self.cursor)
+                self.screen.write_string(" ")
                 self.cursor = 1
             # if cursor already on bottom row scroll down (if possible)
             elif self.cursor == 1 and self.entry_index + 1 < len(self.entries) - 1:
+                self.screen.clear()
                 self.entry_index += 1
+                self.draw()
 
         elif self.controller.just_pressed("up"):
             # if cursor is on bottom row, move it up
             if self.cursor == 1:
+                self.screen.set_cursor(0, self.cursor)
+                self.screen.write_string(" ")
                 self.cursor = 0
+                self.draw()
             # if cursor is already at top and we can scroll up
             elif self.cursor == 0 and self.entry_index > 0:
+                self.screen.clear()
                 self.entry_index -= 1
+                self.draw()
 
         elif self.controller.just_held("select"):
             idx = self.entry_index + self.cursor
@@ -110,8 +144,6 @@ class vmenu:
                         entry["options"]["callback"](entry["options"]["argument"])
                     else:
                         entry["options"]["callback"]()
-
-        self.draw()
 
     def draw_entry(self, entry, row):
         if len(entry["text"]) > self.screen.columns - 1:
