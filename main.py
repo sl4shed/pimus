@@ -4,7 +4,8 @@ import mpv
 import pygame
 
 from lib import config as configClass
-from lib import console_control as control, pilcd as lcd
+from lib import control as control
+from lib import lcd as lcd
 from lib import logger as loggerClass
 from lib import server as serverClass
 from lib.bluetooth import Bluetooth
@@ -84,7 +85,7 @@ class App:
         if self.controller.is_repeating("left"):
             self.menu_manager.back()
 
-        # self.screen.clear()
+        # self.screen.clear()nga nga nga nga nga n gan gan gnagnagn
         self.menu_manager.update()
         pygame.display.update()
         self.screen.draw()

@@ -1,5 +1,8 @@
-import pygame
+import inspect
 import re
+
+import pygame
+
 ## ts the lcd emulator!! not a real lcd class. real lcd class only works on rpi. ##
 ## ts code modular but not really ##
 
@@ -154,6 +157,9 @@ class Screen:
         self.state[row][column] = char
 
     def clear(self):
+        print("cleaer")
+        # print(inspect.stack()[1][2])
+        # print(inspect.stack()[1][3])
         for idr, r in enumerate(self.state):
             for idc, c in enumerate(r):
                 self.state[idr][idc] = [

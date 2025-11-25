@@ -1,5 +1,8 @@
-from mpv import MPV
+import random
+
 import pygame
+from mpv import MPV
+
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
@@ -11,7 +14,6 @@ from ui.player import Player
 from ui.progressbar import ProgressBar
 from ui.vmenu import vmenu
 from util.song import Song
-import random
 
 
 class SongCollection:
@@ -38,6 +40,7 @@ class SongCollection:
             self.make_menu()
 
     def make_menu(self):
+        # self.screen.clear()
         if self.hold:
             self.menu = vmenu(self.name)
 
@@ -55,6 +58,7 @@ class SongCollection:
             self.menu.add_entry("View", {"argument": None, "callback": self.view})
 
             self.menu.add_entry("Sync", {"argument": None, "callback": self.sync})
+        self.menu.draw()
 
     def view(self):
         self.hold = True
@@ -81,8 +85,8 @@ class SongCollection:
         self.menu.update()
 
         if isinstance(self.menu, ProgressBar) and self.needs_syncing:
-            self.menu.update()  # fix visual bug i think idk
-            pygame.time.wait(100)
+            # self.menu.update()  # fix visual bug i think idk
+            # pygame.time.wait(100)
 
             if self.song_index >= len(self.songs):
                 self.make_menu()  # done syncing
