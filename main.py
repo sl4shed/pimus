@@ -187,7 +187,10 @@ class App:
 
     def select_playlist(self, id):
         playlist = Playlist(id, False)
-        self.menu_manager.add(playlist)
+        self.menu_manager.add(
+            playlist
+        )  # somehow this clear thing executes after like can you imagine
+        # after the playlist is like drawn so it gets cleared
 
     def select_playlist_hold(self, id):
         playlist = Playlist(id, True)
