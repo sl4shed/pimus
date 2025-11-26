@@ -9,6 +9,7 @@ from util import utils
 class ProgressBar:
     def __init__(self, progress, title, size=16):
         self.progress = progress
+        self.old_title = ""
         self.title = title
         self.config: Config = Services.config
         self.screen: Screen = Services.screen
@@ -240,8 +241,13 @@ class ProgressBar:
 
         # Draw title
         if len(self.title) > self.screen.columns:
+            self.screen.set_cursor(0, 0)
+            self.screen.write_string("                ")  # 16 whitespaces
             utils.draw_scrolling_text(self.screen, self.title, 0, self.title_scroll)
-        else:
+        elif self.old_title != self.title:
+            self.screen.set_cursor(0, 0)
+            self.screen.write_string("                ")  # 16 white spaces
+            self.old_title = self.title
             utils.draw_centered_text(self.screen, self.title, 0)
 
     def update(self):
@@ -251,4 +257,5 @@ class ProgressBar:
         self.progress = progress
 
     def set_title(self, title):
+        self.old_title = self.title
         self.title = title

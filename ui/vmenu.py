@@ -1,8 +1,8 @@
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
-from util import utils
 from lib.services import Services
+from util import utils
 
 
 class vmenu:
@@ -90,7 +90,9 @@ class vmenu:
             self.input_cooldown = 200  # ms
 
         if self.entries[self.entry_index]["options"].get("selectable", None) == False:
+            self.screen.clear()
             self.cursor = 1
+            self.draw()
 
         # Cooldown to prevent instant selection from previous menu
         if utils.millis() - self.creation_time < self.input_cooldown:
@@ -104,6 +106,8 @@ class vmenu:
                 self.screen.set_cursor(0, self.cursor)
                 self.screen.write_string(" ")
                 self.cursor = 1
+                self.screen.set_cursor(0, self.cursor)
+                self.screen.write_string(">")
             # if cursor already on bottom row scroll down (if possible)
             elif self.cursor == 1 and self.entry_index + 1 < len(self.entries) - 1:
                 self.screen.clear()

@@ -40,7 +40,7 @@ class SongCollection:
             self.make_menu()
 
     def make_menu(self):
-        # self.screen.clear()
+        self.screen.clear()
         if self.hold:
             self.menu = vmenu(self.name)
 

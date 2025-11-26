@@ -80,6 +80,8 @@ class Player:
                 self.song_index += 1
                 self.pause_start_time = None
                 self.total_pause_time = 0
+                self.screen.set_cursor(0, 0)
+                self.screen.write_string("                ")  # 16 white spaces
         elif self.controller.is_pressed("select") and self.controller.is_click("left"):
             # skip song
             if self.song_index - 1 > 0:
@@ -87,6 +89,8 @@ class Player:
                 self.song_index -= 1
                 self.pause_start_time = None
                 self.total_pause_time = 0
+                self.screen.set_cursor(0, 0)
+                self.screen.write_string("                ")  # 16 white spaces
         elif self.controller.is_pressed("select") and self.controller.is_click("up"):
             # volume up
             current_song.set_volume(current_song.get_volume() + 5)

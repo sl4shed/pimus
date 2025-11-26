@@ -157,9 +157,6 @@ class Screen:
         self.state[row][column] = char
 
     def clear(self):
-        print("cleaer")
-        # print(inspect.stack()[1][2])
-        # print(inspect.stack()[1][3])
         for idr, r in enumerate(self.state):
             for idc, c in enumerate(r):
                 self.state[idr][idc] = [

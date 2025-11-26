@@ -129,6 +129,8 @@ class App:
             )
 
         self.menu_manager.add(artists_alphabetic_menu)
+        self.screen.clear()
+        artists_alphabetic_menu.draw()
 
     def select_artist_category(self, letter):
         artists = self.server.get_artists()
@@ -151,14 +153,17 @@ class App:
             )
 
         self.menu_manager.add(artist_category_menu)
+        self.screen.clear()
+        artist_category_menu.draw()
 
     def select_artist_hold(self, id):
         pass
 
     def select_artist(self, id):
         artist = Artist(id)
-
         self.menu_manager.add(artist)
+        self.screen.clear()
+        artist.draw()
 
     def search(self):
         pass
@@ -187,10 +192,7 @@ class App:
 
     def select_playlist(self, id):
         playlist = Playlist(id, False)
-        self.menu_manager.add(
-            playlist
-        )  # somehow this clear thing executes after like can you imagine
-        # after the playlist is like drawn so it gets cleared
+        self.menu_manager.add(playlist)
 
     def select_playlist_hold(self, id):
         playlist = Playlist(id, True)

@@ -1,5 +1,3 @@
-import pygame
-
 from lib.bluetooth import Bluetooth
 from lib.config import Config
 from lib.control import Controller

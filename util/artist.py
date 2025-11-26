@@ -26,6 +26,7 @@ class Artist:
 
         self.artist = self.server.get_artist(self.id)
         self.albums = self.artist["subsonic-response"]["artist"]["album"]
+        print(self.albums)
 
         self.menu = hmenu(self.artist["subsonic-response"]["artist"]["@name"])
 
@@ -43,17 +44,22 @@ class Artist:
     def update(self):
         self.menu.update()
 
+    def draw(self):
+        self.menu.draw()
+
     def artist_songs(self):
         print("artist songs")
 
     def artist_albums(self):
         menu = vmenu("Artist Albums")
-        Services.app.menu_manager.add(menu)
         for album in self.albums:
-            self.menu.add_entry(
+            menu.add_entry(
                 album["@name"],
                 {"callback": self.select_album, "argument": album["@id"]},
             )
+        Services.app.menu_manager.add(menu)
+        # self.screen.clear()
+        # menu.draw()
 
     def select_album(self, id):
         Services.app.menu_manager.add(Album(id, False))

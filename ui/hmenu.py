@@ -51,7 +51,6 @@ class hmenu:
             self.draw()
 
     def draw(self):
-        print("draw")
         if len(self.title) > self.screen.columns:
             utils.draw_scrolling_text(self.screen, self.title, 0, self.title_scroll)
         else:
