@@ -21,11 +21,13 @@ class Settings:
         self.menu.add_entry("Wi-Fi", {"callback": self.wifi})
         self.menu.add_entry("Display", {"callback": self.display})
 
+        self.screen.clear()
+        self.menu.draw()
+
     def bluetooth(self):
         # for future me navigating this mess
         # timerprogressbar has a callback where i stop bt discovery
         # matter of fact its right beneath this function
-        # you dumbass
         self.bt.start_discovery()
         Services.app.menu_manager.add(
             TimerProgressBar(
@@ -89,3 +91,6 @@ class Settings:
 
     def update(self):
         self.menu.update()
+
+    def draw(self):
+        self.menu.draw()

@@ -21,7 +21,7 @@ class MenuManager:
     def add(self, menu, options={}):
         # self.screen.clear()
         self.menu_history.append({"menu": menu, "options": options})
-        self.menu_history[-1]["menu"].update()
+        # self.menu_history[-1]["menu"].update()
         # self.menu_history[-1]["menu"].draw()
 
     def update(self):
