@@ -48,7 +48,9 @@ class Artist:
         self.menu.draw()
 
     def artist_songs(self):
-        print("artist songs")
+        songs = self.server.get_top_songs(self.id)
+        for song in songs["subsonic-response"]["topSongs"]:
+            print(song["title"])
 
     def artist_albums(self):
         menu = vmenu("Artist Albums")

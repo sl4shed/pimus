@@ -1,11 +1,13 @@
-import json
-import requests
 import hashlib
-import uuid
-import xmltodict
-from os import makedirs
+import json
 import os.path
+import uuid
+from os import makedirs
 from pathlib import Path
+
+import requests
+import xmltodict
+
 from lib.logger import Logger
 
 
@@ -101,6 +103,10 @@ class Server:
 
     def get_artist(self, id):
         response = self.endpoint("rest/getArtist", {"id": id})
+        return self.handle_response(response)["response"]
+
+    def get_top_songs(self, artist_id):
+        response = self.endpoint("rest/getTopSongs", {"artist": artist_id})
         return self.handle_response(response)["response"]
 
     def download(self, id, path):
