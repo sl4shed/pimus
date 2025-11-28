@@ -26,12 +26,18 @@ class Controller:
         self.hold_triggered = {k: False for k in self.current_state}
         self.prev_hold_triggered = self.hold_triggered.copy()
 
+        # Buffer for escape sequences
+        self.escape_buffer = ""
+
         # enable raw mode
         self.old_settings = termios.tcgetattr(sys.stdin)
         tty.setcbreak(sys.stdin.fileno())
 
     def __del__(self):
         # restore terminal on exit
+        self.restore_terminal()
+
+    def restore_terminal(self):
         try:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
         except:
@@ -44,21 +50,22 @@ class Controller:
         if select.select([sys.stdin], [], [], 0)[0]:
             ch = sys.stdin.read(1)
 
-            # handle escape sequences for arrows
-            if ch == "\x1b":  # ESC
-                if select.select([sys.stdin], [], [], 0)[0]:
+            # Handle escape sequences for arrows
+            if ch == "\x1b":  # ESC character
+                # Read the next two characters with a small timeout
+                if select.select([sys.stdin], [], [], 0.1)[0]:
                     ch2 = sys.stdin.read(1)
-                    if ch2 == "[" and select.select([sys.stdin], [], [], 0)[0]:
-                        ch3 = sys.stdin.read(1)
-                        seq = ch + ch2 + ch3
-                        if seq == "\x1b[A":
-                            return "up"
-                        if seq == "\x1b[B":
-                            return "down"
-                        if seq == "\x1b[C":
-                            return "right"
-                        if seq == "\x1b[D":
-                            return "left"
+                    if ch2 == "[":
+                        if select.select([sys.stdin], [], [], 0.1)[0]:
+                            ch3 = sys.stdin.read(1)
+                            if ch3 == "A":
+                                return "up"
+                            elif ch3 == "B":
+                                return "down"
+                            elif ch3 == "C":
+                                return "right"
+                            elif ch3 == "D":
+                                return "left"
                 return None
 
             # normal keys
@@ -71,7 +78,7 @@ class Controller:
             if ch in ("d", "D"):
                 return "right"
 
-            if ch == " " or ch == "\n":
+            if ch == " " or ch == "\n" or ch == "\r":
                 return "select"
 
             return None
@@ -81,25 +88,28 @@ class Controller:
     # ---------------- UPDATE ---------------- #
 
     def update(self, events=None):
-        """Drop-in compatible with pygame version: events is ignored."""
+        """Update controller state - events parameter for pygame compatibility"""
         current_time = time.time()
 
+        # Save previous state
         self.previous_state = self.current_state.copy()
         self.prev_hold_triggered = self.hold_triggered.copy()
 
+        # Get current key press
         key = self._get_key()
+
+        # Reset all states first
+        for btn in self.current_state:
+            self.current_state[btn] = False
+
+        # Set the current pressed key
         if key is not None:
-            # treat keys as press events
-            if not self.current_state[key]:
+            # If this is a new press, record the time
+            if not self.previous_state[key]:
                 self.press_time[key] = current_time
                 self.hold_triggered[key] = False
-            self.current_state[key] = True
 
-        # auto-release keys when not held
-        # (console has no KEYUP event, so we emulate)
-        for btn in self.current_state:
-            if btn != key:
-                self.current_state[btn] = False
+            self.current_state[key] = True
 
         # HOLD DETECT
         for key, down in self.current_state.items():

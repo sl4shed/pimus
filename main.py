@@ -1,11 +1,5 @@
-import time
-
 import mpv
-import pygame
-
 from lib import config as configClass
-from lib import control as control
-from lib import lcd as lcd
 from lib import logger as loggerClass
 from lib import server as serverClass
 from lib.bluetooth import Bluetooth
@@ -20,15 +14,29 @@ from util.playlist import Playlist
 from util.settings import Settings
 from util.song import Song
 
+config = configClass.Config("./config.json")
+emulated = config.get("emulated")
+
+if emulated:
+    from lib import control as control
+    from lib import lcd as lcd
+    import pygame as pygame
+else:
+    from lib import console_control as control
+    from lib import pilcd as lcd
+
 
 class App:
     def __init__(self):
-        pygame.init()
-        pygame.display.set_caption("Pimus Emulator")
-        self.surface = pygame.display.set_mode((720, 130))
-        pygame.display.flip()
+        self.config = config
+        self.emulated = emulated
 
-        self.config = configClass.Config("./config.json")
+        if self.emulated:
+            pygame.init()
+            pygame.display.set_caption("Pimus Emulator")
+            self.surface = pygame.display.set_mode((720, 130))
+            pygame.display.flip()
+
         self.controller = control.Controller()
         self.screen = lcd.Screen(
             2, 16, charmap.charmap, 0, 0, (102, 168, 0), self.surface
@@ -76,18 +84,22 @@ class App:
 
     def update(self):
         # controller update code
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT:
-                self.running = False
-        self.controller.update(events)
+        if self.emulated:
+            events = pygame.event.get()
+            for event in events:
+                if event.type == pygame.QUIT:
+                    self.running = False
+            self.controller.update(events)
+        else:
+            self.controller.update()
 
         if self.controller.is_repeating("left"):
             self.menu_manager.back()
 
         # self.screen.clear()nga nga nga nga nga n gan gan gnagnagn
         self.menu_manager.update()
-        pygame.display.update()
+        if self.emulated:
+            pygame.display.update()
         self.screen.draw()
 
     def albums(self):
