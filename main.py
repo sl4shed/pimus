@@ -36,6 +36,8 @@ class App:
             pygame.display.set_caption("Pimus Emulator")
             self.surface = pygame.display.set_mode((720, 130))
             pygame.display.flip()
+        else:
+            self.surface = None
 
         self.controller = control.Controller()
         self.screen = lcd.Screen(
