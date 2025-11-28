@@ -21,7 +21,7 @@ if emulated:
     from lib import control as control
     from lib import lcd as lcd
 
-    print("import pygame (fuckass)")
+    print("import pygame (fuckass lcd)")
     import pygame as pygame
 else:
     from lib import console_control as control

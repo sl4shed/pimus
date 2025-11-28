@@ -1,8 +1,7 @@
-from lib import lcd
 import time
 
 
-def draw_centered_text(screen: lcd.Screen, text, row):
+def draw_centered_text(screen, text, row):
     if len(text) > screen.columns:
         return
 
