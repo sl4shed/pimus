@@ -7,7 +7,7 @@ class Logger:
         self.file = open(path, "a+")
 
     def info(self, message):
-        cprint(f"[Info] {message}", "light_blue")
+        cprint(f"[Info] {message}", "blue")
         self.file.write(f"\n[Info] {message}")
 
     def warn(self, message):
