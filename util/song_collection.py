@@ -1,6 +1,4 @@
 import random
-
-import pygame
 from mpv import MPV
 
 from lib.config import Config
