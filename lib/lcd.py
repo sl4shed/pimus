@@ -1,6 +1,7 @@
 import inspect
 import re
 
+print("import pygame (fuckass lcd)")
 import pygame
 
 ## ts the lcd emulator!! not a real lcd class. real lcd class only works on rpi. ##

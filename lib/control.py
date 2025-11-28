@@ -1,4 +1,6 @@
 import pygame
+
+print("import pygame (fuckass lcd)")
 import time
 
 
