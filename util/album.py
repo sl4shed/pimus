@@ -1,5 +1,4 @@
 from mpv import MPV
-import pygame
 from lib.config import Config
 from lib.control import Controller
 from lib.lcd import Screen
