@@ -105,8 +105,8 @@ class Server:
         response = self.endpoint("rest/getArtist", {"id": id})
         return self.handle_response(response)["response"]
 
-    def get_top_songs(self, artist_id):
-        response = self.endpoint("rest/getTopSongs", {"artist": artist_id})
+    def get_top_songs(self, artist_name):
+        response = self.endpoint("rest/getTopSongs", {"artist": artist_name})
         return self.handle_response(response)["response"]
 
     def download(self, id, path):

@@ -1,3 +1,5 @@
+import json
+
 from mpv import MPV
 
 from lib.config import Config
@@ -7,8 +9,10 @@ from lib.logger import Logger
 from lib.server import Server
 from lib.services import Services
 from ui.hmenu import hmenu
+from ui.player import Player
 from ui.vmenu import vmenu
 from util.album import Album
+from util.song import Song
 
 
 class Artist:
@@ -26,8 +30,6 @@ class Artist:
 
         self.artist = self.server.get_artist(self.id)
         self.albums = self.artist["subsonic-response"]["artist"]["album"]
-        print(self.albums)
-
         self.menu = hmenu(self.artist["subsonic-response"]["artist"]["@name"])
 
         self.menu.add_entry(
@@ -48,9 +50,21 @@ class Artist:
         self.menu.draw()
 
     def artist_songs(self):
-        songs = self.server.get_top_songs(self.id)
-        for song in songs["subsonic-response"]["topSongs"]:
-            print(song["title"])
+        songs = self.server.get_top_songs(
+            self.artist["subsonic-response"]["artist"]["@name"]
+        )
+
+        t = vmenu("Top Songs")
+        self.top_songs = []
+        for i, song_obj in enumerate(songs["subsonic-response"]["topSongs"]["song"]):
+            song = Song(song_obj)
+            self.top_songs.append(song)
+            t.add_entry(song.title, {"callback": self.select_song, "argument": i})
+        Services.app.menu_manager.add(t)
+
+    def select_song(self, i):
+        t = Player(self.top_songs, i)
+        Services.app.menu_manager.add(t)
 
     def artist_albums(self):
         menu = vmenu("Artist Albums")

@@ -7,15 +7,15 @@ from util import utils
 
 
 class Player:
-    def __init__(self, songs):
+    def __init__(self, songs, start_index=0):
         self.songs = songs
         self.config: Config = Services.config
         self.screen: Screen = Services.screen
         self.controller: Controller = Services.controller
 
         self.playing = False
-        self.last_song_index = -1
-        self.song_index = 0
+        self.last_song_index = start_index - 1
+        self.song_index = start_index
         current_song = self.songs[self.song_index]
         self.song_start_time = utils.millis()
         self.pause_start_time = None

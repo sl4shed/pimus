@@ -77,7 +77,8 @@ class SongCollection:
         self.force_sync = force
 
     def select_song(self, i):
-        pass
+        t = Player(self.songs, i)
+        Services.app.menu_manager.add(t)
 
     def update(self):
         self.menu.update()
