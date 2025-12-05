@@ -13,6 +13,7 @@ from ui.player import Player
 from ui.vmenu import vmenu
 from util.album import Album
 from util.song import Song
+from util.song_collection import SongCollection
 
 
 class Artist:
@@ -36,6 +37,9 @@ class Artist:
             "Songs",
             {
                 "callback": self.artist_songs,
+                "argument": False,
+                "hold_callback": self.artist_songs,
+                "argument": True,
             },
         )
 
@@ -49,21 +53,17 @@ class Artist:
     def draw(self):
         self.menu.draw()
 
-    def artist_songs(self):
+    def artist_songs(self, hold):
         songs = self.server.get_top_songs(
             self.artist["subsonic-response"]["artist"]["@name"]
         )
 
-        t = vmenu("Top Songs")
         self.top_songs = []
         for i, song_obj in enumerate(songs["subsonic-response"]["topSongs"]["song"]):
             song = Song(song_obj)
             self.top_songs.append(song)
-            t.add_entry(song.title, {"callback": self.select_song, "argument": i})
-        Services.app.menu_manager.add(t)
 
-    def select_song(self, i):
-        t = Player(self.top_songs, i)
+        t = SongCollection(self.top_songs, "Top Songs", hold)
         Services.app.menu_manager.add(t)
 
     def artist_albums(self):
