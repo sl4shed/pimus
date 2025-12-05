@@ -1,4 +1,5 @@
 import mpv
+
 from lib import config as configClass
 from lib import logger as loggerClass
 from lib import server as serverClass

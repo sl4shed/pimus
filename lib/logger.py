@@ -1,5 +1,7 @@
 from termcolor import cprint
 
+from util.broadcast import Broadcast
+
 
 class Logger:
     def __init__(self, path):
@@ -20,3 +22,12 @@ class Logger:
 
     def close(self):
         self.file.close()
+
+    def broadcast(self, message):
+        cprint(f"[Broadcast] {message}", "green")
+        self.file.write(f"\n[Broadcast] {message}")
+
+    def broadcast(self, message):
+        cprint(f"[Broadcast] {message}", "green")
+        self.file.write(f"\n[Broadcast] {message}")
+        Services.menu_manager.add(Broadcast(message, 5))

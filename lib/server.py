@@ -12,14 +12,17 @@ from lib.logger import Logger
 
 
 class Server:
-    def __init__(self, address, username, password, app_name, logger: Logger):
+    def __init__(self, address, username, password, app_name, logger):
         self.address = address
         self.username = username
         self.password = password
         self.app_name = app_name
         self.api_version = "1.16.1"
         self.logger = logger
-        self.ping()
+
+        if not self.ping():
+            print("plug")
+            self.logger.broadcast("Server offline!")
 
     def get_queries(self):
         salt = str(uuid.uuid4())[:6]
