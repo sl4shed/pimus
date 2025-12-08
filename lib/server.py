@@ -1,8 +1,6 @@
 import hashlib
 import json
-import os.path
 import uuid
-from os import makedirs
 from pathlib import Path
 
 import requests
@@ -80,7 +78,13 @@ class Server:
             return {"valid": False, "response": response}
 
     def ping(self):
-        response = self.endpoint("rest/ping.view")
+        url = f"{self.address}/{'rest/ping.view'}{self.get_queries()}"
+        try:
+            request = requests.get(url, timeout=1)
+        except requests.exceptions.Timeout:
+            self.online = False
+            return False
+        response = xmltodict.parse(request.content)
         self.online = self.handle_response(response)["valid"]
         return self.online
 

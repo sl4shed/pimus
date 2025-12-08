@@ -42,11 +42,15 @@ class App:
         else:
             self.surface = None
 
+        self.running = True
+        self.scroll = 0
+
         self.controller = control.Controller()
         self.screen = lcd.Screen(
             2, 16, charmap.charmap, 0, 0, (102, 168, 0), self.surface
         )
-        self.logger = loggerClass.Logger("./logs/pimus.log")
+        self.menu_manager = MenuManager(self.screen)
+        self.logger = loggerClass.Logger("./logs/pimus.log", self)
         self.server = serverClass.Server(
             self.config.get("server.address"),
             self.config.get("server.username"),
@@ -67,10 +71,6 @@ class App:
             player=self.player,
             app=self,
         )
-
-        self.running = True
-        self.scroll = 0
-        self.menu_manager = MenuManager()
 
         # main menu
         main_menu = hmenu.hmenu("Pimus 1.0")

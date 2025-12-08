@@ -1,12 +1,14 @@
 from termcolor import cprint
 
+from lib.services import Services
 from util.broadcast import Broadcast
 
 
 class Logger:
-    def __init__(self, path):
+    def __init__(self, path, app):
         self.path = path
         self.file = open(path, "a+")
+        self.app = app
 
     def info(self, message):
         cprint(f"[Info] {message}", "blue")
@@ -30,4 +32,4 @@ class Logger:
     def broadcast(self, message):
         cprint(f"[Broadcast] {message}", "green")
         self.file.write(f"\n[Broadcast] {message}")
-        Services.menu_manager.add(Broadcast(message, 5))
+        self.app.menu_manager.add(Broadcast(message, 5, self.app), {"backable": False})

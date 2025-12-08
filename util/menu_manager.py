@@ -4,8 +4,8 @@ from lib.services import Services
 
 
 class MenuManager:
-    def __init__(self):
-        self.screen = Services.screen
+    def __init__(self, screen):
+        self.screen = screen
         self.menu_history = []
 
     def back(self, force=False):
