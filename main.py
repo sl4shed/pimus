@@ -45,7 +45,7 @@ class App:
         self.running = True
         self.scroll = 0
 
-        self.controller = control.Controller()
+        self.controller = control.Controller(self.config)
         self.screen = lcd.Screen(
             2, 16, charmap.charmap, 0, 0, (102, 168, 0), self.surface
         )

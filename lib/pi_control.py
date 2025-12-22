@@ -4,17 +4,19 @@ import time
 
 class Controller:
     def __init__(self, config):
-        self.pin_config = config.get("controller.pin_config")
+        self.config = config
+        self.pin_config = self.config.get("controller.pin_config")
         self.buttons = {
-            button: Button(pin, bounce_time=0.02) for button, pin in pin_config.items()
+            button: Button(pin, bounce_time=0.02)
+            for button, pin in self.pin_config.items()
         }
 
         self.current_state = {button: False for button in self.pin_config}
         self.previous_state = {button: False for button in self.pin_config}
         self.press_time = {button: float(0) for button in self.pin_config}
-        self.repeat_delay = config.get("controller.repeat_delay")
-        self.repeat_rate = config.get("controller.repeat_rate")
-        self.hold_duration = config.get("controller.hold_duration")
+        self.repeat_delay = self.config.get("controller.repeat_delay")
+        self.repeat_rate = self.config.get("controller.repeat_rate")
+        self.hold_duration = self.config.get("controller.hold_duration")
         self.hold_triggered = {button: False for button in self.pin_config}
         self.prev_hold_triggered = {button: False for button in self.pin_config}
 
