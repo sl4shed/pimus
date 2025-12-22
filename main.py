@@ -22,11 +22,11 @@ if emulated:
     from lib import control as control
     from lib import lcd as lcd
 
-    print("import pygame (fuckass lcd)")
+    print("import pygame")
     import pygame as pygame
 else:
-    from lib import console_control as control
-    from lib import pilcd as lcd
+    from lib import pi_control as control
+    from lib import pi_lcd as lcd
 
 
 class App:
